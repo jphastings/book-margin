@@ -5,10 +5,13 @@
   let handle = $state("");
   let cycle = 0;
   let cycleCount = 0;
+  let resetDialog: HTMLDialogElement;
 
   /** Scroll to the next book still missing an ISBN, cycling back to the first. */
   function scrollToNextMissing() {
-    const books = Array.from(document.querySelectorAll<HTMLElement>(".book.missing"));
+    const books = Array.from(
+      document.querySelectorAll<HTMLElement>(".book.missing"),
+    );
     if (books.length === 0) return;
     // Reset the cursor whenever the set of missing books changes.
     if (books.length !== cycleCount) {
@@ -18,7 +21,9 @@
     const target = books[cycle % books.length]!;
     cycle = (cycle + 1) % books.length;
     target.scrollIntoView({ behavior: "smooth", block: "start" });
-    target.querySelector<HTMLInputElement>(".isbn-fix input")?.focus({ preventScroll: true });
+    target
+      .querySelector<HTMLInputElement>(".isbn-fix input")
+      ?.focus({ preventScroll: true });
   }
 </script>
 
@@ -26,8 +31,11 @@
   <Brand size="nav" />
 
   <span class="nav-summary">
-    <strong>{app.totalRecords}</strong>&nbsp;records&nbsp;·&nbsp;{app.resolvedBooks}&nbsp;books{#if
-      app.missingBooks > 0}&nbsp;·&nbsp;<button type="button" class="need-isbn" onclick={scrollToNextMissing}
+    <strong>{app.totalRecords}</strong
+    >&nbsp;records&nbsp;·&nbsp;{app.resolvedBooks}&nbsp;books{#if app.missingBooks > 0}&nbsp;·&nbsp;<button
+        type="button"
+        class="need-isbn"
+        onclick={scrollToNextMissing}
         >{app.missingBooks}&nbsp;need&nbsp;ISBN</button
       >{/if}
   </span>
@@ -60,8 +68,54 @@
           autocomplete="username"
           spellcheck="false"
         />
-        <button class="primary" type="submit" disabled={!handle.trim()}>Log in</button>
+        <button class="primary" type="submit" disabled={!handle.trim()}
+          >Log in</button
+        >
       </form>
     {/if}
+
+    <button
+      type="button"
+      class="reset"
+      aria-label="Start over"
+      title="Start over"
+      onclick={() => resetDialog.showModal()}
+    >
+      <svg
+        viewBox="0 0 24 24"
+        width="18"
+        height="18"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        aria-hidden="true"
+      >
+        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+        <path d="M3 3v5h5" />
+      </svg>
+    </button>
   </div>
+
+  <dialog class="confirm" bind:this={resetDialog}>
+    <h2>Start over?</h2>
+    <p>
+      This will clear the page & let you upload new files. None of your Margin
+      records will be changed.
+    </p>
+    <div class="confirm-actions">
+      <button type="button" class="ghost" onclick={() => resetDialog.close()}
+        >Cancel</button
+      >
+      <button
+        type="button"
+        class="danger"
+        onclick={() => {
+          resetDialog.close();
+          app.reset();
+        }}>Start over</button
+      >
+    </div>
+  </dialog>
 </nav>

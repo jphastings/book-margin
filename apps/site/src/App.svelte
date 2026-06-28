@@ -26,7 +26,7 @@
 {:else if route === "spec"}
   <Spec />
 {:else}
-  <Dropzone onfile={(file) => void app.analyze(file)} />
+  <Dropzone onfiles={(files) => void app.analyze(files)} />
   {#if app.view === "analyzing"}
     <Analyzing />
   {:else if app.view === "review"}

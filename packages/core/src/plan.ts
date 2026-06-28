@@ -28,6 +28,8 @@ export interface PlannedBook {
   entries: PlannedEntry[];
   /** How many duplicate entries (same rkey) were collapsed. */
   collapsed: number;
+  /** The locator namespace these records' fragments conform to (carried for re-planning). */
+  conformsTo: string;
 }
 
 export interface PlanOptions {
@@ -65,7 +67,12 @@ export async function planBook(
 ): Promise<PlannedBook> {
   const { resolved } = await resolveBook(book, options.resolve ?? {});
   if (!resolved) {
-    return { book, entries: clippings.map((clipping) => ({ clipping })), collapsed: 0 };
+    return {
+      book,
+      entries: clippings.map((clipping) => ({ clipping })),
+      collapsed: 0,
+      conformsTo: options.conformsTo,
+    };
   }
 
   const source = `urn:isbn:${resolved.isbn13}`;
@@ -79,7 +86,11 @@ export async function planBook(
       importedAt: options.importedAt,
       ...(options.generator ? { generator: options.generator } : {}),
     });
-    const rkey = await deterministicTid(clipping.id, clipping.addedAt ?? options.importedAt);
+    // Undated annotations (e.g. Highlighted exports) use a fixed epoch so the
+    // rkey is a pure function of identity and re-imports stay idempotent rather
+    // than minting a new key each time; the record's createdAt still falls back
+    // to importedAt in the mapper.
+    const rkey = await deterministicTid(clipping.id, clipping.addedAt ?? "");
     if (seen.has(rkey)) {
       collapsed++;
       continue;
@@ -87,5 +98,12 @@ export async function planBook(
     seen.add(rkey);
     entries.push({ clipping, rkey, note });
   }
-  return { book, isbn13: resolved.isbn13, via: resolved.via, entries, collapsed };
+  return {
+    book,
+    isbn13: resolved.isbn13,
+    via: resolved.via,
+    entries,
+    collapsed,
+    conformsTo: options.conformsTo,
+  };
 }

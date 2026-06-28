@@ -1,5 +1,5 @@
 export type { Clipping } from "@byjp/kindle-clippings";
-export { HOMEPAGE, KINDLE_LOCATION_NS } from "./constants.ts";
+export { HOMEPAGE, KINDLE_LOCATION_NS, PAGE_NS } from "./constants.ts";
 export type {
   MarginBody,
   MarginGenerator,

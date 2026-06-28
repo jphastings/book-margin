@@ -12,6 +12,7 @@
   "dependencies": {
     "@byjp/book-margin-core": "*",
     "@byjp/book-margin-web": "*",
+    "@byjp/highlighted-exports": "*",
     "@byjp/kindle-clippings": "*"
   },
   "devDependencies": {

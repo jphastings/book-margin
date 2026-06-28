@@ -72,19 +72,23 @@ code {
   white-space: nowrap;
   font-feature-settings: "kern";
 }
+
 .brand-book {
   font-weight: 400;
   color: var(--fg);
 }
+
 .brand-margin {
   font-weight: 800;
   color: var(--accent);
   letter-spacing: -0.02em;
   margin-left: 0.34em;
 }
+
 .brand-nav {
   font-size: 1.3rem;
 }
+
 .brand-hero {
   font-size: 2rem;
   display: block;
@@ -101,21 +105,26 @@ button {
   background: var(--card);
   color: var(--fg);
 }
+
 button.primary {
   background: var(--accent);
   color: #fff;
 }
+
 button.primary:hover {
   background: var(--accent-ink);
 }
+
 button.big {
   padding: 0.8rem 1.6rem;
   font-size: 1.05rem;
 }
+
 button:disabled {
   opacity: 0.45;
   cursor: default;
 }
+
 button.link {
   background: none;
   color: var(--accent-ink);
@@ -134,6 +143,7 @@ input[type="text"] {
   color: var(--fg);
   min-width: 11rem;
 }
+
 input[type="text"]:focus {
   outline: 2px solid var(--accent);
   outline-offset: -1px;
@@ -154,9 +164,11 @@ input[type="text"]:focus {
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
 }
+
 .nav > .brand {
   flex: none;
 }
+
 .nav-summary {
   flex: 1 1 auto;
   min-width: 0;
@@ -167,9 +179,11 @@ input[type="text"]:focus {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .nav-summary strong {
   color: var(--fg);
 }
+
 .need-isbn {
   background: none;
   border: none;
@@ -180,16 +194,19 @@ input[type="text"]:focus {
   cursor: pointer;
   text-decoration: underline;
 }
+
 .nav-right {
   flex: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
+
 .nav-right form {
   display: flex;
   gap: 0.4rem;
 }
+
 /* Compact, squarer login/save controls so they don't dominate the bar. */
 .nav-right button,
 .nav-right input[type="text"] {
@@ -197,12 +214,94 @@ input[type="text"]:focus {
   border-radius: 7px;
   padding: 0.38rem 0.6rem;
 }
+
 .nav-right button {
   padding: 0.38rem 0.8rem;
 }
+
 .nav-right input[type="text"] {
   min-width: 9.5rem;
 }
+
+.nav-right .reset {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid var(--red);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--red);
+  cursor: pointer;
+  transition:
+    background 0.12s ease,
+    color 0.12s ease;
+}
+
+.nav-right .reset:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+.confirm {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.4rem 1.5rem;
+  max-width: 22rem;
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
+}
+
+.confirm::backdrop {
+  background: var(--overlay);
+}
+
+.confirm h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.confirm p {
+  margin: 0 0 1.25rem;
+  color: var(--muted);
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.confirm button {
+  border-radius: 8px;
+  padding: 0.5rem 0.95rem;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.confirm .ghost {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--fg);
+}
+
+.confirm .danger {
+  border: 1px solid var(--red);
+  background: var(--red);
+  color: #fff;
+  font-weight: 600;
+}
+
+.confirm .danger:hover {
+  filter: brightness(0.93);
+}
+
 .who {
   color: var(--muted);
   font-size: 0.85rem;
@@ -219,9 +318,11 @@ input[type="text"]:focus {
     gap: 0.35rem 0.6rem;
     padding: 0.55rem 0.9rem;
   }
+
   .brand-nav {
     font-size: 1.1rem;
   }
+
   .nav-summary {
     order: 3;
     flex-basis: 100%;
@@ -230,16 +331,20 @@ input[type="text"]:focus {
     overflow: visible;
     text-overflow: clip;
   }
+
   .nav-right input[type="text"] {
     min-width: 7rem;
   }
+
   .who {
     display: none;
   }
+
   /* Clear the taller two-row nav (specificity beats the base .review rule). */
   main.review {
     padding-top: 6rem;
   }
+
   .book {
     scroll-margin-top: 6rem;
   }
@@ -252,12 +357,54 @@ input[type="text"]:focus {
   padding: 6rem 1.25rem 4rem;
   text-align: center;
 }
+
 .landing h1 {
   font-size: 1.9rem;
   font-weight: 600;
   line-height: 1.25;
   margin: 0 0 2rem;
 }
+
+.sources {
+  list-style: none;
+  margin: 0 auto 2rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.source-card {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-align: left;
+  padding: 0.7rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--card);
+}
+
+.source-logo {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.source-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+
+.source-text span {
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+
 .hint {
   color: var(--muted);
   margin-top: 1rem;
@@ -271,6 +418,7 @@ input[type="text"]:focus {
   text-align: center;
   color: var(--muted);
 }
+
 .spinner {
   width: 34px;
   height: 34px;
@@ -280,6 +428,7 @@ input[type="text"]:focus {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
+
 @keyframes spin {
   to {
     transform: rotate(360deg);
@@ -292,6 +441,7 @@ input[type="text"]:focus {
   margin: 0 auto;
   padding: 4.5rem 1.25rem 5rem;
 }
+
 .review-bar {
   display: flex;
   align-items: baseline;
@@ -300,12 +450,15 @@ input[type="text"]:focus {
   margin-bottom: 0.5rem;
   min-height: 1.4rem;
 }
+
 .warn {
   color: var(--red);
 }
+
 .saved {
   color: var(--green);
 }
+
 .muted {
   color: var(--muted);
 }
@@ -314,6 +467,7 @@ input[type="text"]:focus {
   margin: 2rem 0;
   scroll-margin-top: 4.5rem;
 }
+
 .book-head {
   display: flex;
   align-items: flex-start;
@@ -324,37 +478,47 @@ input[type="text"]:focus {
   border-bottom: 1px solid var(--border);
   margin-bottom: 0.85rem;
 }
+
 .book-meta {
   min-width: 0;
 }
+
 .book-meta h2 {
   font-size: 1.15rem;
   margin: 0;
 }
+
 .title-fresh {
   color: var(--accent);
 }
+
 .title-present {
   color: var(--green);
 }
+
 .title-update {
   color: var(--yellow);
 }
+
 .title-missing-isbn {
   color: var(--red);
 }
+
 .title-excluded {
   color: var(--muted);
 }
+
 .book-author {
   color: var(--muted);
   font-size: 0.9rem;
   margin: 0.2rem 0 0;
 }
+
 .isbn-control {
   flex: none;
   padding-top: 0.1rem;
 }
+
 button.book-isbn {
   background: none;
   border: none;
@@ -365,21 +529,25 @@ button.book-isbn {
   font-family: ui-monospace, Menlo, monospace;
   cursor: pointer;
 }
+
 button.book-isbn:hover {
   color: var(--accent-ink);
   text-decoration: underline;
 }
+
 /* Compact ISBN input with a check button tucked inside its right edge. */
 .isbn-entry {
   position: relative;
   display: inline-flex;
 }
+
 .isbn-entry input {
   font-size: 0.92rem;
   border-radius: 7px;
   padding: 0.38rem 1.9rem 0.38rem 0.6rem;
   min-width: 8.5rem;
 }
+
 .isbn-go {
   position: absolute;
   right: 3px;
@@ -394,6 +562,7 @@ button.book-isbn:hover {
   color: var(--accent);
   cursor: pointer;
 }
+
 .isbn-go:disabled {
   color: var(--muted);
   opacity: 0.5;
@@ -409,28 +578,35 @@ button.book-isbn:hover {
   padding: 0.85rem 1rem;
   margin: 0.6rem 0;
 }
+
 .record-fresh {
   --status-color: var(--accent);
 }
+
 .record-present {
   --status-color: var(--green);
 }
+
 .record-update {
   --status-color: var(--yellow);
 }
+
 .record-missing-isbn {
   --status-color: var(--red);
 }
+
 .record-excluded {
   --status-color: var(--muted);
   background: color-mix(in srgb, var(--muted) 6%, var(--card));
 }
+
 .record-excluded .book-title,
 .record-excluded .quote,
 .record-excluded .note,
 .record-excluded .loc {
   color: var(--muted);
 }
+
 .record-head {
   display: flex;
   align-items: center;
@@ -438,6 +614,7 @@ button.book-isbn:hover {
   gap: 0.75rem;
   margin-bottom: 0.5rem;
 }
+
 .source {
   display: inline-flex;
   align-items: center;
@@ -445,10 +622,12 @@ button.book-isbn:hover {
   color: var(--muted);
   min-width: 0;
 }
+
 .source svg {
   flex: none;
   color: var(--status-color, var(--accent));
 }
+
 .book-title {
   color: var(--status-color, var(--accent-ink));
   font-weight: 600;
@@ -456,10 +635,12 @@ button.book-isbn:hover {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
 .loc {
   font-size: 0.82rem;
   flex: none;
 }
+
 .quote {
   margin: 0;
   padding: 0.5rem 0.85rem;
@@ -469,10 +650,12 @@ button.book-isbn:hover {
   font-style: italic;
   font-size: 1.02rem;
 }
+
 .note {
   margin: 0.55rem 0 0;
   font-size: 0.95rem;
 }
+
 .note-label {
   display: inline-block;
   font-size: 0.7rem;
@@ -499,21 +682,27 @@ button.book-isbn:hover {
   padding: 2px;
   cursor: pointer;
 }
+
 .status-present {
   color: var(--green);
 }
+
 .status-fresh {
   color: var(--accent);
 }
+
 .status-update {
   color: var(--yellow);
 }
+
 .status-missing-isbn {
   color: var(--red);
 }
+
 .status.status-excluded {
   color: var(--muted);
 }
+
 .status-tip {
   position: absolute;
   right: calc(100% + 8px);
@@ -533,6 +722,7 @@ button.book-isbn:hover {
   transition: opacity 0.12s ease;
   pointer-events: none;
 }
+
 .status-tip.visible {
   opacity: 1;
   visibility: visible;
@@ -550,6 +740,7 @@ button.book-isbn:hover {
   backdrop-filter: blur(2px);
   pointer-events: none;
 }
+
 .dropzone-frame {
   position: absolute;
   inset: 14px;
@@ -559,6 +750,7 @@ button.book-isbn:hover {
   align-items: center;
   justify-content: center;
 }
+
 .dropzone-frame p {
   font-size: 1.4rem;
   font-weight: 600;
@@ -569,20 +761,24 @@ button.book-isbn:hover {
 .error {
   color: var(--red);
 }
+
 .card {
   background: var(--card);
   border-radius: 12px;
   padding: 1.5rem;
   margin: 1.5rem 0;
 }
+
 .prose {
   max-width: 44rem;
   margin: 0 auto;
   padding: 3rem 1.25rem;
 }
+
 .prose h2 {
   margin-top: 2rem;
 }
+
 .prose pre {
   background: #1c1d22;
   color: #f3efe6;
@@ -590,6 +786,7 @@ button.book-isbn:hover {
   border-radius: 8px;
   overflow-x: auto;
 }
+
 .prose pre code {
   background: none;
   color: inherit;

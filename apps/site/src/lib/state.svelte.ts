@@ -1,9 +1,10 @@
-import { parseClippings } from "@byjp/kindle-clippings";
 import {
+  type Clipping,
   HOMEPAGE,
   KINDLE_LOCATION_NS,
   type MarginGenerator,
   type MarginNote,
+  PAGE_NS,
   planBook,
   type PlannedBook,
   type PlannedEntry,
@@ -12,6 +13,8 @@ import {
   slugifyBook,
   toIsbn13,
 } from "@byjp/book-margin-core";
+import { parseHighlightedExport } from "@byjp/highlighted-exports";
+import { parseClippings } from "@byjp/kindle-clippings";
 import {
   type Authed,
   beginLogin,
@@ -51,6 +54,11 @@ function stores() {
 
 function message(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
+}
+
+/** Tell a Highlighted.app Markdown export from a Kindle My Clippings.txt by content. */
+function isHighlightedExport(text: string): boolean {
+  return /^#\s+Highlights for\s/m.test(text) || text.includes("highlighted.app");
 }
 
 class AppState {
@@ -135,23 +143,50 @@ class AppState {
     await this.restoreAuth();
   }
 
-  async analyze(file: File): Promise<void> {
+  async analyze(files: File[]): Promise<void> {
     this.error = "";
     this.view = "analyzing";
     try {
-      const clippings = parseClippings(await file.text());
-      if (clippings.length === 0) {
-        this.error = "No highlights found in that file.";
+      const texts = await Promise.all(files.map((file) => file.text()));
+      const where = stores();
+      const kindle: Clipping[] = [];
+      const highlighted: Clipping[] = [];
+
+      for (const text of texts) {
+        if (isHighlightedExport(text)) {
+          const exported = parseHighlightedExport(text);
+          // The export carries the ISBN, so pin the book in the title store and
+          // resolution becomes a free local lookup.
+          const isbn13 = exported.isbn ? toIsbn13(exported.isbn) : undefined;
+          if (isbn13) {
+            const book = {
+              title: exported.title,
+              ...(exported.author ? { author: exported.author } : {}),
+            };
+            await where.titleStore.set(slugifyBook(book), isbn13);
+          }
+          highlighted.push(...exported.clippings);
+        } else {
+          kindle.push(...parseClippings(text));
+        }
+      }
+
+      if (kindle.length === 0 && highlighted.length === 0) {
+        this.error = "No highlights found in those files.";
         this.view = "landing";
         return;
       }
+
       this.importedAt = new Date().toISOString();
-      this.plan = await planSync(clippings, {
-        conformsTo: KINDLE_LOCATION_NS,
-        importedAt: this.importedAt,
-        generator: GENERATOR,
-        resolve: stores(),
-      });
+      const base = { importedAt: this.importedAt, generator: GENERATOR, resolve: where };
+      const plan: PlannedBook[] = [];
+      if (kindle.length > 0) {
+        plan.push(...(await planSync(kindle, { ...base, conformsTo: KINDLE_LOCATION_NS })));
+      }
+      if (highlighted.length > 0) {
+        plan.push(...(await planSync(highlighted, { ...base, conformsTo: PAGE_NS })));
+      }
+      this.plan = plan;
       this.savePlan();
       this.view = "review";
       await this.refreshExisting();
@@ -179,7 +214,7 @@ class AppState {
       target.book,
       target.entries.map((entry) => entry.clipping),
       {
-        conformsTo: KINDLE_LOCATION_NS,
+        conformsTo: target.conformsTo,
         importedAt: this.importedAt,
         generator: GENERATOR,
         resolve: where,
@@ -237,12 +272,20 @@ class AppState {
     }
   }
 
+  /**
+   * Start over: drop the imported highlights and return to the upload screen.
+   * Keeps the cached ISBN mappings (localStorage) and the signed-in session.
+   */
   reset(): void {
     sessionStorage.removeItem(PLAN_KEY);
     this.plan = [];
     this.view = "landing";
     this.error = "";
+    this.importedAt = "";
+    this.excluded = new Set();
+    this.openTip = undefined;
     this.savedCount = 0;
+    this.savingTotal = 0;
   }
 
   private async refreshExisting(): Promise<void> {

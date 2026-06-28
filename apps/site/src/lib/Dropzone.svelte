@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
-  let { onfile }: { onfile: (file: File) => void } = $props();
+  let { onfiles }: { onfiles: (files: File[]) => void } = $props();
   let dragging = $state(false);
   let depth = 0;
 
@@ -26,8 +26,8 @@
       event.preventDefault();
       depth = 0;
       dragging = false;
-      const file = event.dataTransfer?.files?.[0];
-      if (file) onfile(file);
+      const files = Array.from(event.dataTransfer?.files ?? []);
+      if (files.length > 0) onfiles(files);
     };
 
     window.addEventListener("dragenter", onEnter);
@@ -46,7 +46,7 @@
 {#if dragging}
   <div class="dropzone" role="presentation">
     <div class="dropzone-frame">
-      <p>Drop your <code>My&nbsp;Clippings.txt</code></p>
+      <p>Drop your highlight exports</p>
     </div>
   </div>
 {/if}

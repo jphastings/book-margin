@@ -5,8 +5,8 @@
   let fileInput: HTMLInputElement;
 
   function pick(event: Event) {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (file) void app.analyze(file);
+    const files = Array.from((event.target as HTMLInputElement).files ?? []);
+    if (files.length > 0) void app.analyze(files);
   }
 </script>
 
@@ -18,16 +18,34 @@
 
   {#if app.error}<p class="error">{app.error}</p>{/if}
 
+  <ul class="sources">
+    <li class="source-card">
+      <img class="source-logo" src="/logos/kindle.png" alt="Kindle" />
+      <div class="source-text">
+        <strong>Kindle</strong>
+        <span><code>My&nbsp;Clippings.txt</code></span>
+      </div>
+    </li>
+    <li class="source-card">
+      <img class="source-logo" src="/logos/highlighted.png" alt="Highlighted" />
+      <div class="source-text">
+        <strong>Highlighted</strong>
+        <span>Markdown exports</span>
+      </div>
+    </li>
+  </ul>
+
   <button class="primary big" onclick={() => fileInput.click()}
-    >Upload My&nbsp;Clippings.txt</button
+    >Upload files</button
   >
   <input
     bind:this={fileInput}
     type="file"
-    accept=".txt,text/plain"
+    accept=".txt,.md,text/plain,text/markdown"
+    multiple
     hidden
     onchange={pick}
   />
 
-  <p class="hint">…or drag the file anywhere onto this page.</p>
+  <p class="hint">…or drag onto this page.</p>
 </main>
