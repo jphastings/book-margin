@@ -20,8 +20,8 @@
   "devEngines": {
     "packageManager": {
       "name": "npm",
-      "version": "11.16.0",
-      "onFail": "download"
+      "version": "^11.0.0",
+      "onFail": "warn"
     }
   },
   "engines": {
