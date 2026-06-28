@@ -1,7 +1,7 @@
 :root {
   --bg: #ffffff;
   --fg: #1c1d22;
-  --muted: #6b7280;
+  --muted: #a7b2c9;
   --accent: #1185fe;
   --accent-ink: #0a6fd6;
   --card: #f4f4f6;
@@ -569,14 +569,26 @@ button.book-isbn:hover {
   cursor: default;
 }
 
-/* ---- record card (Margin style) ---- */
+/* ---- record card (margin-rule style) ---- */
+/* No surfaces: a status icon sits in the left gutter, then a thin status-coloured
+   rule, then the content — that rule is the only chrome. */
 .record {
   --status-color: var(--accent);
-  background: color-mix(in srgb, var(--status-color) 7%, var(--card));
-  border-left: 4px solid var(--status-color);
-  border-radius: 4px 12px 12px 4px;
-  padding: 0.85rem 1rem;
-  margin: 0.6rem 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 0.55rem;
+  margin: 1.15rem 0;
+}
+
+.record > .status {
+  margin-top: 0.1rem;
+}
+
+.record-body {
+  min-width: 0;
+  border-left: 3px solid var(--status-color);
+  padding: 0.05rem 0 0.05rem 0.9rem;
 }
 
 .record-fresh {
@@ -596,78 +608,48 @@ button.book-isbn:hover {
 }
 
 .record-excluded {
-  --status-color: var(--muted);
-  background: color-mix(in srgb, var(--muted) 6%, var(--card));
+  --status-color: var(--border);
 }
 
-.record-excluded .book-title,
 .record-excluded .quote,
-.record-excluded .note,
-.record-excluded .loc {
+.record-excluded .note {
   color: var(--muted);
 }
 
-.record-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.source {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  color: var(--muted);
-  min-width: 0;
-}
-
-.source svg {
-  flex: none;
-  color: var(--status-color, var(--accent));
-}
-
-.book-title {
-  color: var(--status-color, var(--accent-ink));
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.loc {
-  font-size: 0.82rem;
-  flex: none;
-}
-
+/* The highlighted passage — the hero. */
 .quote {
   margin: 0;
-  padding: 0.5rem 0.85rem;
-  border-left: 4px solid var(--status-color, var(--accent));
-  border-radius: 0 6px 6px 0;
-  background: var(--quote-bg);
-  font-style: italic;
-  font-size: 1.02rem;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: var(--fg);
 }
 
-.note {
-  margin: 0.55rem 0 0;
-  font-size: 0.95rem;
-}
-
-.note-label {
-  display: inline-block;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+/* The page/location, muted, leading the highlighted text. */
+.loc {
   color: var(--muted);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 0 0.35em;
-  margin-right: 0.5em;
-  vertical-align: 1px;
+}
+
+/* The reader's note — equal weight, but a distinct "ink" voice. */
+.note {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.45rem 0 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--fg);
+}
+
+.note-pen {
+  flex: none;
+  margin-top: 0.3rem;
+  color: var(--muted);
+}
+
+.meta {
+  margin-top: 0.4rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
 }
 
 /* ---- status icons (with hover/tap popover) ---- */
@@ -705,7 +687,7 @@ button.book-isbn:hover {
 
 .status-tip {
   position: absolute;
-  right: calc(100% + 8px);
+  left: calc(100% + 8px);
   top: 50%;
   transform: translateY(-50%);
   z-index: 30;

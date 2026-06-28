@@ -85,6 +85,6 @@
   </header>
 
   {#each rows as { entry, status }, i (entry.rkey ?? i)}
-    <RecordCard {book} {entry} {status} />
+    <RecordCard {entry} {status} />
   {/each}
 </section>

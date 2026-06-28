@@ -1,10 +1,9 @@
 <script lang="ts">
-  import type { PlannedBook, PlannedEntry } from "@byjp/book-margin-core";
+  import type { PlannedEntry } from "@byjp/book-margin-core";
   import { app, type RowStatus } from "./state.svelte.ts";
   import StatusIcon from "./StatusIcon.svelte";
 
-  let { book, entry, status }: { book: PlannedBook; entry: PlannedEntry; status: RowStatus } =
-    $props();
+  let { entry, status }: { entry: PlannedEntry; status: RowStatus } = $props();
 
   const excluded = $derived(app.isExcluded(entry));
   const clipping = $derived(entry.clipping);
@@ -26,8 +25,10 @@
   function dismissTip() {
     if (app.openTip === entry) app.openTip = undefined;
   }
+
   const text = $derived(entry.note?.target.selector?.exact ?? clipping.text);
   const where = $derived(locationLabel());
+  const date = $derived(formatDate(clipping.addedAt));
 
   function locationLabel(): string {
     if (clipping.page !== undefined) return `p.${clipping.page}`;
@@ -35,6 +36,14 @@
       return `loc. ${clipping.location.start}${clipping.location.end ? `–${clipping.location.end}` : ""}`;
     }
     return "";
+  }
+
+  function formatDate(iso?: string): string {
+    if (!iso) return "";
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return "";
+    // addedAt encodes the device's wall-clock time as UTC, so read the UTC date.
+    return d.toISOString().slice(0, 10);
   }
 </script>
 
@@ -45,29 +54,28 @@
   class:record-excluded={excluded}
   onclick={() => app.peekTip(entry)}
 >
-  <div class="record-head">
-    <span class="source">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M3 5.5A1.5 1.5 0 0 1 4.5 4H11v15H4.5A1.5 1.5 0 0 0 3 20.5z" />
-        <path d="M21 5.5A1.5 1.5 0 0 0 19.5 4H13v15h6.5a1.5 1.5 0 0 1 1.5 1.5z" />
-      </svg>
-      <span class="book-title">{book.book.title}</span>
-      {#if where}<span class="loc">{where}</span>{/if}
-    </span>
-    <StatusIcon
-      {status}
-      {excluded}
-      {showTip}
-      ontoggle={toggleSkip}
-      onshow={revealTip}
-      onhide={dismissTip}
-    />
+  <StatusIcon
+    {status}
+    {excluded}
+    {showTip}
+    ontoggle={toggleSkip}
+    onshow={revealTip}
+    onhide={dismissTip}
+  />
+  <div class="record-body">
+    {#if text}
+      <blockquote class="quote">{#if where}<span class="loc">{where}</span>{" "}{/if}{text}</blockquote>
+    {/if}
+    {#if clipping.note}
+      <p class="note">
+        <svg class="note-pen" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M4 20h4l10-10a2.8 2.8 0 0 0-4-4L4 16v4z" />
+          <path d="M13.5 6.5l4 4" />
+        </svg>{clipping.note}
+      </p>
+    {/if}
+    {#if date}
+      <div class="meta">{date}</div>
+    {/if}
   </div>
-
-  {#if text}
-    <blockquote class="quote">{text}</blockquote>
-  {/if}
-  {#if clipping.note}
-    <p class="note"><span class="note-label">Note</span>{clipping.note}</p>
-  {/if}
 </article>
