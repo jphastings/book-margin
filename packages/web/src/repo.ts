@@ -1,17 +1,18 @@
 import { Client, ok } from "@atcute/client";
 import type { ActorIdentifier } from "@atcute/lexicons";
 import type { OAuthUserAgent } from "@atcute/oauth-browser-client";
-import { MARGIN_NOTE_COLLECTION, type RepoClient } from "@byjp/book-margin-core";
+import { MARGIN_NOTE_COLLECTION, type MarginNote, type RepoClient } from "@byjp/book-margin-core";
 
 /**
- * List the rkeys of every `at.margin.note` already in the user's repo, so the
- * review UI can show which records are new vs. an update. (The sync itself never
- * needs this — deterministic rkeys make writes idempotent.)
+ * Every `at.margin.note` already in the user's repo, keyed by rkey, so the review
+ * UI can tell unchanged records (already saved) from ones that need writing or
+ * updating. (The sync itself never needs this — deterministic rkeys make writes
+ * idempotent.)
  */
-export async function listExistingRkeys(agent: OAuthUserAgent): Promise<Set<string>> {
+export async function listExistingNotes(agent: OAuthUserAgent): Promise<Map<string, MarginNote>> {
   const rpc = new Client({ handler: agent });
   const repo: ActorIdentifier = agent.sub;
-  const rkeys = new Set<string>();
+  const notes = new Map<string, MarginNote>();
   let cursor: string | undefined;
   do {
     const page = await ok(
@@ -21,11 +22,11 @@ export async function listExistingRkeys(agent: OAuthUserAgent): Promise<Set<stri
     );
     for (const record of page.records) {
       const rkey = record.uri.split("/").pop();
-      if (rkey) rkeys.add(rkey);
+      if (rkey) notes.set(rkey, record.value as unknown as MarginNote);
     }
     cursor = page.cursor;
   } while (cursor);
-  return rkeys;
+  return notes;
 }
 
 /** Adapt an OAuth-authenticated agent to the core {@link RepoClient} interface. */

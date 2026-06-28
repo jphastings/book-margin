@@ -4,17 +4,24 @@
   let { status }: { status: RowStatus } = $props();
 
   const label: Record<RowStatus, string> = {
-    new: "Will be written",
+    present: "Already saved — no change needed",
+    fresh: "Will be uploaded",
     update: "Will be updated",
-    "missing-isbn": "Missing ISBN",
+    "missing-isbn": "No ISBN — can't be saved",
   };
 </script>
 
-<span class="status status-{status}" title={label[status]} aria-label={label[status]}>
-  {#if status === "new"}
+<button type="button" class="status status-{status}" aria-label={label[status]}>
+  {#if status === "present"}
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="9" />
       <path d="M8.5 12.5l2.5 2.5 4.5-5" />
+    </svg>
+  {:else if status === "fresh"}
+    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 15V4" />
+      <path d="M7.5 8.5L12 4l4.5 4.5" />
+      <path d="M5 19h14" />
     </svg>
   {:else if status === "update"}
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -28,4 +35,5 @@
       <circle cx="12" cy="16.6" r="0.1" />
     </svg>
   {/if}
-</span>
+  <span class="status-tip" role="tooltip">{label[status]}</span>
+</button>

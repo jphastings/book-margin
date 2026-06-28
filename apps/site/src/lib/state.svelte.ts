@@ -3,10 +3,12 @@ import {
   HOMEPAGE,
   KINDLE_LOCATION_NS,
   type MarginGenerator,
+  type MarginNote,
   planBook,
   type PlannedBook,
   type PlannedEntry,
   planSync,
+  recordsEqual,
   slugifyBook,
   toIsbn13,
 } from "@byjp/book-margin-core";
@@ -15,7 +17,7 @@ import {
   beginLogin,
   createLocalIsbnStore,
   createRepoClient,
-  listExistingRkeys,
+  listExistingNotes,
   restoreSession,
 } from "@byjp/book-margin-web";
 import { DID_KEY } from "./config.ts";
@@ -28,7 +30,7 @@ const GENERATOR: MarginGenerator = {
 };
 
 export type View = "landing" | "analyzing" | "review";
-export type RowStatus = "new" | "update" | "missing-isbn";
+export type RowStatus = "fresh" | "update" | "present" | "missing-isbn";
 
 interface StoredPlan {
   importedAt: string;
@@ -49,7 +51,7 @@ class AppState {
   importedAt = $state("");
   did = $state<string | undefined>(undefined);
   agent = $state<Authed["agent"] | undefined>(undefined);
-  existing = $state<Set<string>>(new Set());
+  existing = $state<Map<string, MarginNote>>(new Map());
   error = $state("");
   saving = $state(false);
   savedCount = $state(0);
@@ -72,7 +74,11 @@ class AppState {
 
   statusFor(book: PlannedBook, entry: PlannedEntry): RowStatus {
     if (!book.isbn13 || !entry.rkey) return "missing-isbn";
-    return this.existing.has(entry.rkey) ? "update" : "new";
+    // Signed out, we can't know what's on the server — everything is a fresh upload.
+    if (!this.agent) return "fresh";
+    const stored = this.existing.get(entry.rkey);
+    if (!stored) return "fresh";
+    return recordsEqual(entry.note, stored) ? "present" : "update";
   }
 
   async init(): Promise<void> {
@@ -188,9 +194,9 @@ class AppState {
   private async refreshExisting(): Promise<void> {
     if (!this.agent) return;
     try {
-      this.existing = await listExistingRkeys(this.agent);
+      this.existing = await listExistingNotes(this.agent);
     } catch {
-      // Non-fatal: without this we just can't show new-vs-update.
+      // Non-fatal: without this we just can't distinguish saved vs. new records.
     }
   }
 

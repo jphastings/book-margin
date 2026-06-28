@@ -11,6 +11,7 @@ export type {
 } from "./margin.ts";
 export { MARGIN_NOTE_COLLECTION } from "./margin.ts";
 export { toMarginNote, type MapOptions } from "./mapper.ts";
+export { recordsEqual } from "./equal.ts";
 export { deterministicTid } from "./tid.ts";
 export {
   isbn10To13,

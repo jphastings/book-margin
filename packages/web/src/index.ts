@@ -7,5 +7,5 @@ export {
   restoreSession,
   signOut,
 } from "./oauth.ts";
-export { createRepoClient, listExistingRkeys } from "./repo.ts";
+export { createRepoClient, listExistingNotes } from "./repo.ts";
 export { createLocalIsbnStore } from "./stores.ts";
