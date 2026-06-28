@@ -39,7 +39,20 @@
   }
 </script>
 
-<article class="record record-{status}" class:record-excluded={excluded}>
+<!-- Option/Alt-click anywhere inspects the record (capture so it beats the inner handlers). -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<article
+  class="record record-{status}"
+  class:record-excluded={excluded}
+  onclickcapture={(event) => {
+    if (event.altKey && entry.note) {
+      event.stopPropagation();
+      event.preventDefault();
+      app.inspecting = entry;
+    }
+  }}
+>
   <!-- The gutter (left of the rule) peeks the status; the icon itself toggles it off. -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->

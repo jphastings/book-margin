@@ -1,6 +1,7 @@
 <script lang="ts">
   import BookSection from "./BookSection.svelte";
   import Nav from "./Nav.svelte";
+  import RecordInspector from "./RecordInspector.svelte";
   import { app, type RowStatus } from "./state.svelte.ts";
 
   const justSaved = $derived(!app.saving && app.savedCount > 0);
@@ -46,3 +47,5 @@
     <BookSection {book} {index} />
   {/each}
 </main>
+
+<RecordInspector />

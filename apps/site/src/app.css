@@ -302,6 +302,111 @@ input[type="text"]:focus {
   filter: brightness(0.93);
 }
 
+/* ---- record inspector (option-click → YAML / diff) ---- */
+.inspect {
+  width: min(46rem, calc(100vw - 2rem));
+  max-height: 80vh;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: var(--surface);
+  color: var(--fg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.inspect::backdrop {
+  background: var(--overlay);
+}
+
+.inspect-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.inspect-head h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.inspect-close {
+  flex: none;
+  display: inline-flex;
+  padding: 0.25rem;
+  border: none;
+  border-radius: 7px;
+  background: none;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.inspect-close:hover {
+  background: var(--card);
+  color: var(--fg);
+}
+
+.inspect-body {
+  max-height: calc(80vh - 3.5rem);
+  overflow: auto;
+  padding: 0.6rem 0;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.y-line {
+  display: flex;
+  padding: 0 1rem;
+}
+
+.y-gutter {
+  flex: none;
+  width: 1rem;
+  margin-right: 0.4rem;
+  text-align: center;
+  color: var(--muted);
+  user-select: none;
+}
+
+.y-content {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.y-key {
+  color: var(--accent-ink);
+}
+
+.y-val {
+  color: var(--fg);
+}
+
+.y-punct,
+.y-dash {
+  color: var(--muted);
+  margin-right: 0.45ch;
+}
+
+.diff-add {
+  background: color-mix(in srgb, var(--green) 16%, transparent);
+}
+
+.diff-del {
+  background: color-mix(in srgb, var(--red) 16%, transparent);
+}
+
+.diff-add .y-gutter {
+  color: var(--green);
+}
+
+.diff-del .y-gutter {
+  color: var(--red);
+}
+
 /* The handle reads as plain text but is a button that opens the log-out dialog. */
 .nav-right .who {
   max-width: 9rem;

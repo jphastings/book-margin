@@ -86,6 +86,8 @@ class AppState {
   excluded = $state<Set<PlannedEntry>>(new Set());
   /** The one record whose status description is pinned open (only one at a time). */
   openTip = $state<PlannedEntry | undefined>(undefined);
+  /** The record being inspected (option-click) in the JSON/diff dialog. */
+  inspecting = $state<PlannedEntry | undefined>(undefined);
   error = $state("");
   saving = $state(false);
   savedCount = $state(0);
