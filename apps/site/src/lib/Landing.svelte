@@ -13,9 +13,7 @@
 <main class="landing">
   <Brand size="hero" />
   <h1>
-    Sync your book notes & highlights with <a href="https://margin.at"
-      >Margin.at</a
-    >
+    Sync your book highlights with <a href="https://margin.at">Margin.at</a>
   </h1>
 
   {#if app.error}<p class="error">{app.error}</p>{/if}
