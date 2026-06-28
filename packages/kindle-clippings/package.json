@@ -1,7 +1,7 @@
 {
-  "name": "@byjp/kindle-margin-core",
+  "name": "@byjp/kindle-clippings",
   "version": "0.0.0",
-  "description": "Shared logic for syncing Kindle highlights into Margin (at.margin.note) records on atproto.",
+  "description": "Locale-aware parser for Kindle My Clippings.txt: pairs notes with their highlights and derives a stable per-annotation id.",
   "license": "MIT",
   "files": [
     "dist"
@@ -16,9 +16,6 @@
     "dev": "vp pack --watch",
     "test": "vp test",
     "check": "vp check"
-  },
-  "dependencies": {
-    "@byjp/kindle-clippings": "*"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",

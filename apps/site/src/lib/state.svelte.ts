@@ -1,15 +1,15 @@
+import { parseClippings } from "@byjp/kindle-clippings";
 import {
   HOMEPAGE,
   KINDLE_LOCATION_NS,
   type MarginGenerator,
-  parseMyClippings,
   planBook,
   type PlannedBook,
   type PlannedEntry,
   planSync,
   slugifyBook,
   toIsbn13,
-} from "@kindle-margin/core";
+} from "@byjp/kindle-margin-core";
 import {
   type Authed,
   beginLogin,
@@ -17,7 +17,7 @@ import {
   createRepoClient,
   listExistingRkeys,
   restoreSession,
-} from "@kindle-margin/web";
+} from "@byjp/kindle-margin-web";
 import { DID_KEY } from "./config.ts";
 
 const PLAN_KEY = "kindle-margin:plan";
@@ -89,14 +89,14 @@ class AppState {
     this.error = "";
     this.view = "analyzing";
     try {
-      const highlights = parseMyClippings(await file.text());
-      if (highlights.length === 0) {
+      const clippings = parseClippings(await file.text());
+      if (clippings.length === 0) {
         this.error = "No highlights found in that file.";
         this.view = "landing";
         return;
       }
       this.importedAt = new Date().toISOString();
-      this.plan = await planSync(highlights, {
+      this.plan = await planSync(clippings, {
         conformsTo: KINDLE_LOCATION_NS,
         importedAt: this.importedAt,
         generator: GENERATOR,
@@ -127,7 +127,7 @@ class AppState {
 
     const replanned = await planBook(
       target.book,
-      target.entries.map((entry) => entry.highlight),
+      target.entries.map((entry) => entry.clipping),
       {
         conformsTo: KINDLE_LOCATION_NS,
         importedAt: this.importedAt,

@@ -1,0 +1,32 @@
+/** A Kindle location, a byte-ish offset into the book. Highlights span a range. */
+export interface Location {
+  start: number;
+  end?: number;
+}
+
+export type ClippingKind = "highlight" | "note";
+
+/**
+ * A single normalised Kindle annotation. A note that annotates a highlight is
+ * merged into that highlight (`kind: "highlight"` with `note` set); a note with
+ * no matching highlight stands alone (`kind: "note"`, empty `text`).
+ */
+export interface Clipping {
+  /**
+   * A stable identity hash of `title + author + location`, independent of the
+   * text. Suitable as a deterministic record key; tidying the text never moves it.
+   */
+  id: string;
+  kind: ClippingKind;
+  title: string;
+  author?: string;
+  /** Print page, when the device records one. */
+  page?: number;
+  location?: Location;
+  /** The highlighted passage (wrapping quotes stripped). Empty for a standalone note. */
+  text: string;
+  /** A reader's note: the comment on a highlight, or a standalone note's body. */
+  note?: string;
+  /** ISO 8601 timestamp of when the annotation was made, when parseable. */
+  addedAt?: string;
+}

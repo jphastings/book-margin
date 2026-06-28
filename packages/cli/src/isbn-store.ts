@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { IsbnStore } from "@kindle-margin/core";
+import type { IsbnStore } from "@byjp/kindle-margin-core";
 
 /** Store keys are alphanumeric (ASINs) or slug chars; guard against path escapes. */
 const KEY_PATTERN = /^[A-Za-z0-9-]+$/;

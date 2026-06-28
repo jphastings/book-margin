@@ -7,7 +7,7 @@ const ANY_DOUBLE_QUOTE = /["“”]/;
 
 /**
  * Strip a single pair of wrapping double quotes when the whole string is quoted
- * and contains no double quotes of its own — e.g. Kindle often captures a quoted
+ * and contains no double quotes of its own — Kindle often captures a quoted
  * passage with its surrounding quote marks. `"hello"` → `hello`, but
  * `"he said "hi""` and `partly "quoted"` are left untouched.
  */

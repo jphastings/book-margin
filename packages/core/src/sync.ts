@@ -1,7 +1,7 @@
+import type { Clipping } from "@byjp/kindle-clippings";
 import type { MarginGenerator, MarginNote } from "./margin.ts";
 import { type PlannedBook, planSync } from "./plan.ts";
 import type { BookKey, ResolveOptions } from "./resolver.ts";
-import type { KindleHighlight } from "./types.ts";
 
 /**
  * The single atproto repo operation the sync needs. Implemented by each frontend
@@ -44,11 +44,11 @@ export interface SyncReport {
  * record at its deterministic rkey (unless `dryRun`).
  */
 export async function syncHighlights(
-  highlights: KindleHighlight[],
+  clippings: Clipping[],
   client: RepoClient | undefined,
   options: SyncOptions,
 ): Promise<SyncReport> {
-  const plan = await planSync(highlights, options);
+  const plan = await planSync(clippings, options);
 
   const resolved = plan.filter((book) => book.isbn13);
   const held: HeldBook[] = plan

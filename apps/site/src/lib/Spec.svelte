@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { KINDLE_LOCATION_NS } from "@kindle-margin/core";
+  import { KINDLE_LOCATION_NS } from "@byjp/kindle-margin-core";
 </script>
 
 <main class="prose">

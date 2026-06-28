@@ -3,15 +3,15 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
+import { parseClippings } from "@byjp/kindle-clippings";
 import {
   HOMEPAGE,
   KINDLE_LOCATION_NS,
   type MarginGenerator,
-  parseMyClippings,
   slugifyBook,
   type SyncReport,
   syncHighlights,
-} from "@kindle-margin/core";
+} from "@byjp/kindle-margin-core";
 import { authenticate } from "./auth.ts";
 import {
   createFileIsbnStore,
@@ -63,8 +63,8 @@ async function main(): Promise<void> {
     return;
   }
 
-  const highlights = parseMyClippings(await readFile(values.file, "utf8"));
-  if (highlights.length === 0) {
+  const clippings = parseClippings(await readFile(values.file, "utf8"));
+  if (clippings.length === 0) {
     process.stdout.write("No highlights found in that file.\n");
     return;
   }
@@ -81,7 +81,7 @@ async function main(): Promise<void> {
         sessionPath: values.session ?? defaultSessionPath(),
       });
 
-  const report = await syncHighlights(highlights, client, {
+  const report = await syncHighlights(clippings, client, {
     conformsTo: KINDLE_LOCATION_NS,
     importedAt: new Date().toISOString(),
     generator: GENERATOR,
@@ -94,7 +94,7 @@ async function main(): Promise<void> {
     },
   });
 
-  printReport(report, highlights.length, dryRun);
+  printReport(report, clippings.length, dryRun);
 }
 
 async function connect(options: Parameters<typeof authenticate>[0]) {

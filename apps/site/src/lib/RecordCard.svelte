@@ -1,27 +1,20 @@
 <script lang="ts">
-  import type { PlannedBook, PlannedEntry } from "@kindle-margin/core";
+  import type { PlannedBook, PlannedEntry } from "@byjp/kindle-margin-core";
   import type { RowStatus } from "./state.svelte.ts";
   import StatusIcon from "./StatusIcon.svelte";
 
   let { book, entry, status }: { book: PlannedBook; entry: PlannedEntry; status: RowStatus } =
     $props();
 
-  const TINTS: Record<string, string> = {
-    yellow: "#e3b341",
-    blue: "#4a90d9",
-    pink: "#e8618c",
-    orange: "#e08c34",
-  };
-
-  const highlight = $derived(entry.highlight);
-  const text = $derived(entry.note?.target.selector?.exact ?? highlight.exact);
-  const tint = $derived(highlight.color ? (TINTS[highlight.color] ?? "var(--accent)") : "var(--accent)");
+  const clipping = $derived(entry.clipping);
+  const text = $derived(entry.note?.target.selector?.exact ?? clipping.text);
+  const tint = "var(--accent)";
   const where = $derived(locationLabel());
 
   function locationLabel(): string {
-    if (highlight.page !== undefined) return `p.${highlight.page}`;
-    if (highlight.locationStart !== undefined) {
-      return `loc. ${highlight.locationStart}${highlight.locationEnd ? `–${highlight.locationEnd}` : ""}`;
+    if (clipping.page !== undefined) return `p.${clipping.page}`;
+    if (clipping.location) {
+      return `loc. ${clipping.location.start}${clipping.location.end ? `–${clipping.location.end}` : ""}`;
     }
     return "";
   }
@@ -43,7 +36,7 @@
   {#if text}
     <blockquote class="quote" style="--tint: {tint}">{text}</blockquote>
   {/if}
-  {#if highlight.note}
-    <p class="note"><span class="note-label">Note</span>{highlight.note}</p>
+  {#if clipping.note}
+    <p class="note"><span class="note-label">Note</span>{clipping.note}</p>
   {/if}
 </article>

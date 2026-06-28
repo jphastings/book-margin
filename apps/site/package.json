@@ -1,5 +1,5 @@
 {
-  "name": "@kindle-margin/site",
+  "name": "@byjp/kindle-margin-site",
   "version": "0.0.0",
   "private": true,
   "type": "module",
@@ -10,8 +10,9 @@
     "check": "svelte-check --tsconfig ./tsconfig.json"
   },
   "dependencies": {
-    "@kindle-margin/core": "*",
-    "@kindle-margin/web": "*"
+    "@byjp/kindle-clippings": "*",
+    "@byjp/kindle-margin-core": "*",
+    "@byjp/kindle-margin-web": "*"
   },
   "devDependencies": {
     "@atcute/atproto": "^4.0.2",

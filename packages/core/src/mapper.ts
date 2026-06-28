@@ -1,6 +1,5 @@
+import type { Clipping } from "@byjp/kindle-clippings";
 import type { MarginGenerator, MarginNote, MarginSelector } from "./margin.ts";
-import { stripWrappingQuotes } from "./text.ts";
-import type { KindleHighlight } from "./types.ts";
 
 export interface MapOptions {
   /** Resolved book identity URI for `target.source`, e.g. `urn:isbn:9780135957059`. */
@@ -14,32 +13,31 @@ export interface MapOptions {
 }
 
 /**
- * Map a normalised {@link KindleHighlight} to an `at.margin.note` record.
+ * Map a {@link Clipping} to an `at.margin.note` record.
  *
  * The highlighted text becomes a portable `TextQuoteSelector`; the proprietary
- * Kindle location/page/ASIN ride along in a `refinedBy` `FragmentSelector` under
- * the `conformsTo` URI. A standalone note (no highlighted text) targets the
- * FragmentSelector directly. The ASIN is always retained in the fragment so book
- * identity survives even though `target.source` prefers the ISBN.
+ * Kindle location/page rides along in a `refinedBy` `FragmentSelector` under the
+ * `conformsTo` URI. A note carried on a highlight makes the record a `commenting`
+ * annotation; a standalone note (no highlighted text) targets the FragmentSelector
+ * directly.
  */
-export function toMarginNote(highlight: KindleHighlight, options: MapOptions): MarginNote {
-  const fragment = buildFragmentSelector(highlight, options.conformsTo);
+export function toMarginNote(clipping: Clipping, options: MapOptions): MarginNote {
+  const fragment = buildFragmentSelector(clipping, options.conformsTo);
 
   const note: MarginNote = {
     $type: "at.margin.note",
-    motivation: highlight.note ? "commenting" : "highlighting",
+    motivation: clipping.note ? "commenting" : "highlighting",
     target: {
       source: options.source,
-      ...(highlight.bookTitle ? { title: highlight.bookTitle } : {}),
+      ...(clipping.title ? { title: clipping.title } : {}),
     },
-    createdAt: highlight.createdAt ?? options.importedAt,
+    createdAt: clipping.addedAt ?? options.importedAt,
   };
 
-  if (highlight.color) note.color = highlight.color;
-  if (highlight.note) note.body = { value: highlight.note, format: "text/plain" };
+  if (clipping.note) note.body = { value: clipping.note, format: "text/plain" };
   if (options.generator) note.generator = options.generator;
 
-  const selector = buildSelector(stripWrappingQuotes(highlight.exact), fragment);
+  const selector = buildSelector(clipping.text, fragment);
   if (selector) note.target.selector = selector;
 
   return note;
@@ -57,27 +55,20 @@ function buildSelector(
   return fragment;
 }
 
-function buildFragmentSelector(
-  highlight: KindleHighlight,
-  conformsTo: string,
-): MarginSelector | undefined {
-  const value = fragmentValue(highlight);
+function buildFragmentSelector(clipping: Clipping, conformsTo: string): MarginSelector | undefined {
+  const value = fragmentValue(clipping);
   if (!value) return undefined;
   return { type: "FragmentSelector", conformsTo, value };
 }
 
-/** Build the Kindle-location fragment value, e.g. `asin=B0046LU7H0&location=792-794&page=52`. */
-function fragmentValue(highlight: KindleHighlight): string | undefined {
+/** Build the Kindle-location fragment value, e.g. `location=792-794&page=52`. */
+function fragmentValue(clipping: Clipping): string | undefined {
   const params = new URLSearchParams();
-  if (highlight.asin) params.set("asin", highlight.asin);
-  if (highlight.locationStart !== undefined) {
-    const end = highlight.locationEnd;
-    params.set(
-      "location",
-      end !== undefined ? `${highlight.locationStart}-${end}` : `${highlight.locationStart}`,
-    );
+  if (clipping.location) {
+    const { start, end } = clipping.location;
+    params.set("location", end !== undefined ? `${start}-${end}` : `${start}`);
   }
-  if (highlight.page !== undefined) params.set("page", String(highlight.page));
+  if (clipping.page !== undefined) params.set("page", String(clipping.page));
   const value = params.toString();
   return value.length > 0 ? value : undefined;
 }

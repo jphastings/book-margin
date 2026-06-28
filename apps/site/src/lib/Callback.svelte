@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { completeCallback } from "@kindle-margin/web";
+  import { completeCallback } from "@byjp/kindle-margin-web";
   import { onMount } from "svelte";
   import { DID_KEY } from "./config.ts";
 

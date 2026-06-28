@@ -1,6 +1,5 @@
-export type { AnnotationKind, KindleHighlight } from "./types.ts";
+export type { Clipping } from "@byjp/kindle-clippings";
 export { HOMEPAGE, KINDLE_LOCATION_NS } from "./constants.ts";
-export { parseMyClippings } from "./clippings.ts";
 export type {
   MarginBody,
   MarginGenerator,
@@ -12,8 +11,6 @@ export type {
 } from "./margin.ts";
 export { MARGIN_NOTE_COLLECTION } from "./margin.ts";
 export { toMarginNote, type MapOptions } from "./mapper.ts";
-export { stripWrappingQuotes } from "./text.ts";
-export { highlightSeed } from "./identity.ts";
 export { deterministicTid } from "./tid.ts";
 export {
   isbn10To13,

@@ -1,4 +1,4 @@
-import type { IsbnStore } from "@kindle-margin/core";
+import type { IsbnStore } from "@byjp/kindle-margin-core";
 
 /**
  * A {@link IsbnStore} backed by localStorage, so ISBN lookups are cached across

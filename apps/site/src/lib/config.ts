@@ -1,6 +1,6 @@
-import { configure } from "@kindle-margin/web";
+import { configure } from "@byjp/kindle-margin-web";
 
-// Must match the scope requested in @kindle-margin/web's oauth client.
+// Must match the scope requested in @byjp/kindle-margin-web's oauth client.
 const SCOPE = "atproto transition:generic";
 
 const origin = location.origin;
