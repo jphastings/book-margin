@@ -637,6 +637,11 @@ input[type="text"]:focus {
   color: var(--green);
 }
 
+.view-margin {
+  margin-left: 0.5rem;
+  font-weight: 600;
+}
+
 .muted {
   color: var(--muted);
 }

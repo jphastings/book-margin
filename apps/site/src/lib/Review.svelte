@@ -37,9 +37,13 @@
   <div class="review-bar">
     <span>
       {#if app.error}<span class="error">{app.error}</span>
-      {:else if justSaved}<span class="saved"
-          >Saved {app.savedCount} note(s) to your repo.</span
-        >{/if}
+      {:else if justSaved}<span class="saved">Saved {app.savedCount} note(s) to your repo.</span>
+        {#if app.did}<a
+            class="view-margin"
+            href="https://margin.at/profile/{app.did}"
+            target="_blank"
+            rel="noopener noreferrer">View on Margin</a
+          >{/if}{/if}
     </span>
   </div>
 
