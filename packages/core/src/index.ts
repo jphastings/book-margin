@@ -41,3 +41,11 @@ export {
   type SyncOptions,
   type SyncReport,
 } from "./sync.ts";
+export {
+  planBook,
+  planSync,
+  type PlannedBook,
+  type PlannedEntry,
+  type PlanOptions,
+} from "./plan.ts";
+export { groupByBook, type BookGroup } from "./grouping.ts";

@@ -1,0 +1,212 @@
+import {
+  HOMEPAGE,
+  KINDLE_LOCATION_NS,
+  type MarginGenerator,
+  parseMyClippings,
+  planBook,
+  type PlannedBook,
+  type PlannedEntry,
+  planSync,
+  slugifyBook,
+  toIsbn13,
+} from "@kindle-margin/core";
+import {
+  type Authed,
+  beginLogin,
+  createLocalIsbnStore,
+  createRepoClient,
+  listExistingRkeys,
+  restoreSession,
+} from "@kindle-margin/web";
+import { DID_KEY } from "./config.ts";
+
+const PLAN_KEY = "kindle-margin:plan";
+const GENERATOR: MarginGenerator = {
+  id: HOMEPAGE,
+  name: "Kindle Margin (Web)",
+  homepage: HOMEPAGE,
+};
+
+export type View = "landing" | "analyzing" | "review";
+export type RowStatus = "new" | "update" | "missing-isbn";
+
+interface StoredPlan {
+  importedAt: string;
+  plan: PlannedBook[];
+}
+
+function stores() {
+  return { store: createLocalIsbnStore("asin"), titleStore: createLocalIsbnStore("title") };
+}
+
+function message(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
+}
+
+class AppState {
+  view = $state<View>("landing");
+  plan = $state<PlannedBook[]>([]);
+  importedAt = $state("");
+  did = $state<string | undefined>(undefined);
+  agent = $state<Authed["agent"] | undefined>(undefined);
+  existing = $state<Set<string>>(new Set());
+  error = $state("");
+  saving = $state(false);
+  savedCount = $state(0);
+
+  get loggedIn(): boolean {
+    return this.agent !== undefined;
+  }
+
+  get resolvedBooks(): number {
+    return this.plan.filter((book) => book.isbn13).length;
+  }
+
+  get totalRecords(): number {
+    return this.plan.reduce((n, book) => n + (book.isbn13 ? book.entries.length : 0), 0);
+  }
+
+  get missingBooks(): number {
+    return this.plan.filter((book) => !book.isbn13).length;
+  }
+
+  statusFor(book: PlannedBook, entry: PlannedEntry): RowStatus {
+    if (!book.isbn13 || !entry.rkey) return "missing-isbn";
+    return this.existing.has(entry.rkey) ? "update" : "new";
+  }
+
+  async init(): Promise<void> {
+    const stored = loadPlan();
+    if (stored) {
+      this.plan = stored.plan;
+      this.importedAt = stored.importedAt;
+      this.view = "review";
+    }
+    await this.restoreAuth();
+  }
+
+  async analyze(file: File): Promise<void> {
+    this.error = "";
+    this.view = "analyzing";
+    try {
+      const highlights = parseMyClippings(await file.text());
+      if (highlights.length === 0) {
+        this.error = "No highlights found in that file.";
+        this.view = "landing";
+        return;
+      }
+      this.importedAt = new Date().toISOString();
+      this.plan = await planSync(highlights, {
+        conformsTo: KINDLE_LOCATION_NS,
+        importedAt: this.importedAt,
+        generator: GENERATOR,
+        resolve: stores(),
+      });
+      this.savePlan();
+      this.view = "review";
+      await this.refreshExisting();
+    } catch (error) {
+      this.error = message(error);
+      this.view = "landing";
+    }
+  }
+
+  async setIsbn(bookIndex: number, isbn: string): Promise<void> {
+    const isbn13 = toIsbn13(isbn);
+    if (!isbn13) {
+      this.error = "That doesn't look like a valid ISBN.";
+      return;
+    }
+    this.error = "";
+    const target = this.plan[bookIndex];
+    if (!target) return;
+
+    const where = stores();
+    if (target.book.asin) await where.store.set(target.book.asin, isbn13);
+    else await where.titleStore.set(slugifyBook(target.book), isbn13);
+
+    const replanned = await planBook(
+      target.book,
+      target.entries.map((entry) => entry.highlight),
+      {
+        conformsTo: KINDLE_LOCATION_NS,
+        importedAt: this.importedAt,
+        generator: GENERATOR,
+        resolve: where,
+      },
+    );
+    this.plan = this.plan.map((book, index) => (index === bookIndex ? replanned : book));
+    this.savePlan();
+  }
+
+  async login(handle: string): Promise<void> {
+    this.savePlan();
+    await beginLogin(handle.trim());
+  }
+
+  async restoreAuth(): Promise<void> {
+    const saved = localStorage.getItem(DID_KEY);
+    if (!saved) return;
+    const restored = await restoreSession(saved);
+    if (!restored) {
+      localStorage.removeItem(DID_KEY);
+      return;
+    }
+    this.agent = restored.agent;
+    this.did = restored.did;
+    await this.refreshExisting();
+  }
+
+  async save(): Promise<void> {
+    if (!this.agent) return;
+    this.saving = true;
+    this.savedCount = 0;
+    this.error = "";
+    try {
+      const client = createRepoClient(this.agent);
+      const entries = this.plan.filter((book) => book.isbn13).flatMap((book) => book.entries);
+      for (const entry of entries) {
+        await client.putNote(entry.rkey!, entry.note!);
+        this.savedCount++;
+      }
+      await this.refreshExisting();
+    } catch (error) {
+      this.error = message(error);
+    } finally {
+      this.saving = false;
+    }
+  }
+
+  reset(): void {
+    sessionStorage.removeItem(PLAN_KEY);
+    this.plan = [];
+    this.view = "landing";
+    this.error = "";
+    this.savedCount = 0;
+  }
+
+  private async refreshExisting(): Promise<void> {
+    if (!this.agent) return;
+    try {
+      this.existing = await listExistingRkeys(this.agent);
+    } catch {
+      // Non-fatal: without this we just can't show new-vs-update.
+    }
+  }
+
+  private savePlan(): void {
+    const data: StoredPlan = { importedAt: this.importedAt, plan: this.plan };
+    sessionStorage.setItem(PLAN_KEY, JSON.stringify(data));
+  }
+}
+
+function loadPlan(): StoredPlan | undefined {
+  try {
+    const raw = sessionStorage.getItem(PLAN_KEY);
+    return raw ? (JSON.parse(raw) as StoredPlan) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+export const app = new AppState();

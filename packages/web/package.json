@@ -1,0 +1,25 @@
+{
+  "name": "@kindle-margin/web",
+  "version": "0.0.0",
+  "description": "Shared browser-side atproto OAuth, repo client, and ISBN stores for the site and extension.",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "check": "vp check"
+  },
+  "dependencies": {
+    "@atcute/atproto": "^4.0.2",
+    "@atcute/client": "^5.1.0",
+    "@atcute/identity-resolver": "^2.0.0",
+    "@atcute/lexicons": "^2.0.1",
+    "@atcute/oauth-browser-client": "^4.0.0",
+    "@kindle-margin/core": "*"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3",
+    "vite-plus": "latest"
+  }
+}

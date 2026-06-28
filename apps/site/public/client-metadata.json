@@ -1,0 +1,13 @@
+{
+  "client_id": "https://kindle-margin.byjp.me/client-metadata.json",
+  "client_name": "Kindle Margin",
+  "client_uri": "https://kindle-margin.byjp.me",
+  "logo_uri": "https://kindle-margin.byjp.me/favicon.svg",
+  "redirect_uris": ["https://kindle-margin.byjp.me/callback"],
+  "scope": "atproto transition:generic",
+  "grant_types": ["authorization_code", "refresh_token"],
+  "response_types": ["code"],
+  "token_endpoint_auth_method": "none",
+  "application_type": "web",
+  "dpop_bound_access_tokens": true
+}
