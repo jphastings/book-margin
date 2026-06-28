@@ -12,9 +12,10 @@
   <div class="review-bar">
     <span>
       {#if app.error}<span class="error">{app.error}</span>
-      {:else if justSaved}<span class="saved">Saved {app.savedCount} note(s) to your repo.</span>{/if}
+      {:else if justSaved}<span class="saved"
+          >Saved {app.savedCount} note(s) to your repo.</span
+        >{/if}
     </span>
-    <button class="link" onclick={() => app.reset()}>Start over</button>
   </div>
 
   {#each app.plan as book, i (book.book.title + (book.book.author ?? ""))}
