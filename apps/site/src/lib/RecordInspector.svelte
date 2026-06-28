@@ -1,13 +1,21 @@
 <script lang="ts">
-  import { recordsEqual } from "@byjp/book-margin-core";
+  import { MARGIN_NOTE_COLLECTION, recordsEqual } from "@byjp/book-margin-core";
   import { diffYaml, toYamlLines, type YamlLine } from "./recordYaml.ts";
   import { app } from "./state.svelte.ts";
 
   let dialog = $state<HTMLDialogElement>();
+  let copied = $state(false);
 
   const entry = $derived(app.inspecting);
   const record = $derived(entry?.note);
   const stored = $derived(entry?.rkey ? app.existing.get(entry.rkey) : undefined);
+
+  // The at:// address this record would be written to (the signed-in repo).
+  const atUri = $derived(
+    entry?.rkey
+      ? `at://${app.handle ?? app.did ?? "…"}/${MARGIN_NOTE_COLLECTION}/${entry.rkey}`
+      : "",
+  );
 
   // A record is a real update only if it differs once createdAt is ignored for
   // undated highlights (matching how the review decides present vs. update).
@@ -21,20 +29,39 @@
   const diff = $derived(record && stored && changed ? diffYaml(stored, record) : null);
 
   $effect(() => {
-    if (app.inspecting && !dialog?.open) dialog?.showModal();
-    else if (!app.inspecting) dialog?.close();
+    if (app.inspecting && !dialog?.open) {
+      copied = false;
+      dialog?.showModal();
+    } else if (!app.inspecting) {
+      dialog?.close();
+    }
   });
+
+  async function copyUri() {
+    try {
+      await navigator.clipboard.writeText(atUri);
+      copied = true;
+      setTimeout(() => (copied = false), 1500);
+    } catch {
+      // Clipboard unavailable (e.g. denied) — nothing to do.
+    }
+  }
 </script>
 
 {#snippet yaml(line: YamlLine)}
-  {#if line.bullet}<span class="y-dash">-</span>{/if}{#if line.key !== null}<span class="y-key"
-      >{line.key}</span
-    ><span class="y-punct">:</span>{/if}{#if line.value !== null}<span class="y-val"
-      >{line.value}</span
-    >{/if}
+  {#if line.bullet}<span class="y-dash">-</span>{/if}{#if line.key !== null}<span class="y-keypart"
+      ><span class="y-key">{line.key}</span><span class="y-punct">:</span></span
+    >{/if}{#if line.value !== null}<span class="y-val">{line.value}</span>{/if}
 {/snippet}
 
-<dialog class="inspect" bind:this={dialog} onclose={() => (app.inspecting = undefined)}>
+<dialog
+  class="inspect"
+  bind:this={dialog}
+  onclose={() => (app.inspecting = undefined)}
+  onclick={(event) => {
+    if (event.target === dialog) dialog?.close();
+  }}
+>
   <header class="inspect-head">
     <h2>{diff ? "Changes to be written" : "Record to be written"}</h2>
     <button type="button" class="inspect-close" aria-label="Close" onclick={() => dialog?.close()}>
@@ -43,6 +70,11 @@
       </svg>
     </button>
   </header>
+
+  <button type="button" class="inspect-uri" onclick={copyUri} title="Copy this at:// URI">
+    <span class="inspect-uri-text">{atUri}</span>
+    <span class="inspect-uri-hint" class:is-copied={copied}>{copied ? "Copied" : "Copy"}</span>
+  </button>
 
   <div class="inspect-body">
     {#if diff}

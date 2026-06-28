@@ -315,11 +315,19 @@ input[type="text"]:focus {
   overflow: hidden;
 }
 
+/* Only lay out (and show) the dialog when open, so a closed dialog stays
+   `display: none` (otherwise this author rule overrides the UA stylesheet). */
+.inspect[open] {
+  display: flex;
+  flex-direction: column;
+}
+
 .inspect::backdrop {
   background: var(--overlay);
 }
 
 .inspect-head {
+  flex: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -349,10 +357,54 @@ input[type="text"]:focus {
   color: var(--fg);
 }
 
+/* The at:// address — click to copy. */
+.inspect-uri {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.5rem 1.1rem;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  border-radius: 0;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.inspect-uri:hover {
+  background: var(--card);
+}
+
+.inspect-uri-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--accent-ink);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.78rem;
+}
+
+.inspect-uri-hint {
+  flex: none;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+.inspect-uri-hint.is-copied {
+  color: var(--green);
+}
+
 .inspect-body {
-  max-height: calc(80vh - 3.5rem);
+  flex: 1;
+  min-height: 0;
   overflow: auto;
-  padding: 0.6rem 0;
+  padding: 0.85rem 0.95rem;
   font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 0.82rem;
   line-height: 1.6;
@@ -360,7 +412,7 @@ input[type="text"]:focus {
 
 .y-line {
   display: flex;
-  padding: 0 1rem;
+  align-items: flex-start;
 }
 
 .y-gutter {
@@ -372,9 +424,16 @@ input[type="text"]:focus {
   user-select: none;
 }
 
+/* A key column then a value column, so a wrapped value hangs under the value. */
 .y-content {
+  flex: 1;
   min-width: 0;
-  overflow-wrap: anywhere;
+  display: flex;
+}
+
+.y-keypart,
+.y-dash {
+  flex: none;
 }
 
 .y-key {
@@ -382,6 +441,9 @@ input[type="text"]:focus {
 }
 
 .y-val {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
   color: var(--fg);
 }
 
