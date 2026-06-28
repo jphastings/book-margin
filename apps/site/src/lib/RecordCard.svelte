@@ -32,9 +32,7 @@
 
   function locationLabel(): string {
     if (clipping.page !== undefined) return `p.${clipping.page}`;
-    if (clipping.location) {
-      return `loc. ${clipping.location.start}${clipping.location.end ? `–${clipping.location.end}` : ""}`;
-    }
+    if (clipping.location) return `L.${clipping.location.start}`;
     return "";
   }
 </script>
