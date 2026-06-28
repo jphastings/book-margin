@@ -17,6 +17,15 @@
     app.toggleExcluded(entry);
     app.openTip = entry;
   }
+
+  // Hover/focus shows this description and hides any other; leaving clears it
+  // (unless another card has since taken over).
+  function revealTip() {
+    app.openTip = entry;
+  }
+  function dismissTip() {
+    if (app.openTip === entry) app.openTip = undefined;
+  }
   const text = $derived(entry.note?.target.selector?.exact ?? clipping.text);
   const where = $derived(locationLabel());
 
@@ -45,7 +54,14 @@
       <span class="book-title">{book.book.title}</span>
       {#if where}<span class="loc">{where}</span>{/if}
     </span>
-    <StatusIcon {status} {excluded} {showTip} ontoggle={toggleSkip} />
+    <StatusIcon
+      {status}
+      {excluded}
+      {showTip}
+      ontoggle={toggleSkip}
+      onshow={revealTip}
+      onhide={dismissTip}
+    />
   </div>
 
   {#if text}

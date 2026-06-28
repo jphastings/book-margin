@@ -6,11 +6,15 @@
     excluded = false,
     showTip = false,
     ontoggle,
+    onshow,
+    onhide,
   }: {
     status: RowStatus;
     excluded?: boolean;
     showTip?: boolean;
     ontoggle?: () => void;
+    onshow?: () => void;
+    onhide?: () => void;
   } = $props();
 
   const label: Record<RowStatus, string> = {
@@ -35,6 +39,10 @@
   aria-label={tip}
   aria-pressed={excluded}
   {onclick}
+  onmouseenter={onshow}
+  onmouseleave={onhide}
+  onfocus={onshow}
+  onblur={onhide}
 >
   {#if excluded}
     <svg

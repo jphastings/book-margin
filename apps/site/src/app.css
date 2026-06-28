@@ -447,7 +447,7 @@ button.book-isbn:hover {
 }
 .source svg {
   flex: none;
-  color: var(--accent);
+  color: var(--status-color, var(--accent));
 }
 .book-title {
   color: var(--status-color, var(--accent-ink));
@@ -533,8 +533,6 @@ button.book-isbn:hover {
   transition: opacity 0.12s ease;
   pointer-events: none;
 }
-.status:hover .status-tip,
-.status:focus .status-tip,
 .status-tip.visible {
   opacity: 1;
   visibility: visible;
