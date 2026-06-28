@@ -1,10 +1,10 @@
 {
-  "name": "@byjp/kindle-margin-cli",
+  "name": "@byjp/book-margin-cli",
   "version": "0.0.0",
   "description": "Command-line sync of a Kindle My Clippings.txt export into Margin (at.margin.note) records.",
   "license": "MIT",
   "bin": {
-    "kindle-margin": "./src/main.ts"
+    "book-margin": "./src/main.ts"
   },
   "type": "module",
   "scripts": {
@@ -18,8 +18,8 @@
     "@atcute/identity-resolver-node": "^2.0.0",
     "@atcute/lexicons": "^2.0.1",
     "@atcute/password-session": "^1.0.0",
-    "@byjp/kindle-clippings": "*",
-    "@byjp/kindle-margin-core": "*"
+    "@byjp/book-margin-core": "*",
+    "@byjp/kindle-clippings": "*"
   },
   "devDependencies": {
     "@types/node": "^25.6.2",

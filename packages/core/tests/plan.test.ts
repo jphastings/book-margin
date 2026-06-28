@@ -17,7 +17,7 @@ function titleStore(byTitle: Record<string, string>): IsbnStore {
 }
 
 const OPTIONS = {
-  conformsTo: "https://kindle-margin.byjp.me/ns/kindle-location",
+  conformsTo: "https://book-margin.byjp.me/ns/kindle-location",
   importedAt: "2026-06-27T00:00:00.000Z",
   resolve: {
     titleStore: titleStore({ "The Pragmatic Programmer": "9780135957059" }),

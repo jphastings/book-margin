@@ -3,5 +3,5 @@
 </script>
 
 <span class="brand brand-{size}">
-  <span class="brand-kindle">Kindle</span><span class="brand-margin">Margin</span>
+  <span class="brand-book">Book</span><span class="brand-margin">Margin</span>
 </span>

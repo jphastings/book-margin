@@ -72,7 +72,7 @@ code {
   white-space: nowrap;
   font-feature-settings: "kern";
 }
-.brand-kindle {
+.brand-book {
   font-weight: 400;
   color: var(--fg);
 }

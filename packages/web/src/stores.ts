@@ -1,11 +1,11 @@
-import type { IsbnStore } from "@byjp/kindle-margin-core";
+import type { IsbnStore } from "@byjp/book-margin-core";
 
 /**
  * A {@link IsbnStore} backed by localStorage, so ISBN lookups are cached across
  * visits. `namespace` separates the ASIN-keyed and title-slug-keyed stores.
  */
 export function createLocalIsbnStore(namespace: string): IsbnStore {
-  const prefix = `kindle-margin:isbn:${namespace}:`;
+  const prefix = `book-margin:isbn:${namespace}:`;
   return {
     get(key) {
       try {

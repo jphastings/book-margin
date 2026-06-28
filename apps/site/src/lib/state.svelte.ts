@@ -9,7 +9,7 @@ import {
   planSync,
   slugifyBook,
   toIsbn13,
-} from "@byjp/kindle-margin-core";
+} from "@byjp/book-margin-core";
 import {
   type Authed,
   beginLogin,
@@ -17,13 +17,13 @@ import {
   createRepoClient,
   listExistingRkeys,
   restoreSession,
-} from "@byjp/kindle-margin-web";
+} from "@byjp/book-margin-web";
 import { DID_KEY } from "./config.ts";
 
-const PLAN_KEY = "kindle-margin:plan";
+const PLAN_KEY = "book-margin:plan";
 const GENERATOR: MarginGenerator = {
   id: HOMEPAGE,
-  name: "Kindle Margin (Web)",
+  name: "Book Margin (Web)",
   homepage: HOMEPAGE,
 };
 

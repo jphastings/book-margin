@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PlannedBook, PlannedEntry } from "@byjp/kindle-margin-core";
+  import type { PlannedBook, PlannedEntry } from "@byjp/book-margin-core";
   import type { RowStatus } from "./state.svelte.ts";
   import StatusIcon from "./StatusIcon.svelte";
 

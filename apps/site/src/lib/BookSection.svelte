@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { PlannedBook } from "@byjp/kindle-margin-core";
+  import type { PlannedBook } from "@byjp/book-margin-core";
   import RecordCard from "./RecordCard.svelte";
   import { app } from "./state.svelte.ts";
 

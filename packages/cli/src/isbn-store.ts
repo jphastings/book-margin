@@ -1,19 +1,19 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import type { IsbnStore } from "@byjp/kindle-margin-core";
+import type { IsbnStore } from "@byjp/book-margin-core";
 
 /** Store keys are alphanumeric (ASINs) or slug chars; guard against path escapes. */
 const KEY_PATTERN = /^[A-Za-z0-9-]+$/;
 
 /** The default on-disk location for the persistent ASIN → ISBN store. */
 export function defaultStoreDir(): string {
-  return join(homedir(), ".kindle-margin", "asins");
+  return join(homedir(), ".book-margin", "asins");
 }
 
 /** The default on-disk location for the persistent title-slug → ISBN store. */
 export function defaultTitleStoreDir(): string {
-  return join(homedir(), ".kindle-margin", "titles");
+  return join(homedir(), ".book-margin", "titles");
 }
 
 /**

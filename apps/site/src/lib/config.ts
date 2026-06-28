@@ -1,6 +1,6 @@
-import { configure } from "@byjp/kindle-margin-web";
+import { configure } from "@byjp/book-margin-web";
 
-// Must match the scope requested in @byjp/kindle-margin-web's oauth client.
+// Must match the scope requested in @byjp/book-margin-web's oauth client.
 const SCOPE = "atproto transition:generic";
 
 const origin = location.origin;
@@ -19,7 +19,7 @@ export const CLIENT_ID = isLoopback
   : `${origin}/oauth-client-metadata.json`;
 
 /** localStorage key holding the signed-in DID. */
-export const DID_KEY = "kindle-margin:did";
+export const DID_KEY = "book-margin:did";
 
 export function setupOAuth(): void {
   configure({ clientId: CLIENT_ID, redirectUri: REDIRECT_URI });

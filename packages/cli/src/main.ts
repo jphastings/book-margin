@@ -11,7 +11,7 @@ import {
   slugifyBook,
   type SyncReport,
   syncHighlights,
-} from "@byjp/kindle-margin-core";
+} from "@byjp/book-margin-core";
 import { authenticate } from "./auth.ts";
 import {
   createFileIsbnStore,
@@ -21,10 +21,10 @@ import {
 } from "./isbn-store.ts";
 import { createRepoClient } from "./repo.ts";
 
-const USAGE = `kindle-margin — sync a Kindle My Clippings.txt into your Margin (atproto) notes
+const USAGE = `book-margin — sync a Kindle My Clippings.txt into your Margin (atproto) notes
 
 Usage:
-  kindle-margin --file <My Clippings.txt> [options]
+  book-margin --file <My Clippings.txt> [options]
 
 Options:
   -f, --file <path>         Path to My Clippings.txt (required)
@@ -32,14 +32,14 @@ Options:
   -p, --password <pw>       App password (or set KINDLE_MARGIN_APP_PASSWORD)
       --service <url>       PDS URL (default: auto-resolved from your handle)
       --overrides <path>    JSON file mapping ASIN -> ISBN for unresolved books
-      --session <path>      Session file (default: ~/.config/kindle-margin/session.json)
+      --session <path>      Session file (default: ~/.config/book-margin/session.json)
       --dry-run             Resolve and map, but don't write or authenticate
   -h, --help                Show this help
 `;
 
 const GENERATOR: MarginGenerator = {
   id: HOMEPAGE,
-  name: "Kindle Margin (CLI)",
+  name: "Book Margin (CLI)",
   homepage: HOMEPAGE,
 };
 
@@ -87,7 +87,7 @@ async function main(): Promise<void> {
     generator: GENERATOR,
     dryRun,
     resolve: {
-      userAgent: `kindle-margin/0.0 (${HOMEPAGE})`,
+      userAgent: `book-margin/0.0 (${HOMEPAGE})`,
       store: createFileIsbnStore(),
       titleStore: createFileTitleStore(),
       ...(overrides ? { overrides } : {}),
@@ -108,7 +108,7 @@ async function readOverrides(path: string): Promise<Record<string, string>> {
 
 function defaultSessionPath(): string {
   const base = process.env.XDG_CONFIG_HOME ?? join(homedir(), ".config");
-  return join(base, "kindle-margin", "session.json");
+  return join(base, "book-margin", "session.json");
 }
 
 function printReport(report: SyncReport, total: number, dryRun: boolean): void {

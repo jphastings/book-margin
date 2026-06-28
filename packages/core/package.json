@@ -1,5 +1,5 @@
 {
-  "name": "@byjp/kindle-margin-core",
+  "name": "@byjp/book-margin-core",
   "version": "0.0.0",
   "description": "Shared logic for syncing Kindle highlights into Margin (at.margin.note) records on atproto.",
   "license": "MIT",

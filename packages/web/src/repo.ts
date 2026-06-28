@@ -1,7 +1,7 @@
 import { Client, ok } from "@atcute/client";
 import type { ActorIdentifier } from "@atcute/lexicons";
 import type { OAuthUserAgent } from "@atcute/oauth-browser-client";
-import { MARGIN_NOTE_COLLECTION, type RepoClient } from "@byjp/kindle-margin-core";
+import { MARGIN_NOTE_COLLECTION, type RepoClient } from "@byjp/book-margin-core";
 
 /**
  * List the rkeys of every `at.margin.note` already in the user's repo, so the

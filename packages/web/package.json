@@ -1,5 +1,5 @@
 {
-  "name": "@byjp/kindle-margin-web",
+  "name": "@byjp/book-margin-web",
   "version": "0.0.0",
   "description": "Shared browser-side atproto OAuth, repo client, and ISBN stores for the site and extension.",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "@atcute/identity-resolver": "^2.0.0",
     "@atcute/lexicons": "^2.0.1",
     "@atcute/oauth-browser-client": "^4.0.0",
-    "@byjp/kindle-margin-core": "*"
+    "@byjp/book-margin-core": "*"
   },
   "devDependencies": {
     "typescript": "^6.0.3",

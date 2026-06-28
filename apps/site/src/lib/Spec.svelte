@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { KINDLE_LOCATION_NS } from "@byjp/kindle-margin-core";
+  import { KINDLE_LOCATION_NS } from "@byjp/book-margin-core";
 </script>
 
 <main class="prose">
@@ -42,5 +42,5 @@
     prefers an ISBN, so the original book identity is never lost.
   </p>
 
-  <p><a href="/">← Kindle Margin</a></p>
+  <p><a href="/">← Book Margin</a></p>
 </main>

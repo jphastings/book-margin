@@ -4,8 +4,8 @@ import { type MapOptions, toMarginNote } from "../src/mapper.ts";
 
 const OPTS: MapOptions = {
   source: "urn:isbn:9780135957059",
-  conformsTo: "https://kindle-margin.byjp.me/ns/kindle-location",
-  generator: { id: "https://kindle-margin.byjp.me", name: "Kindle Margin" },
+  conformsTo: "https://book-margin.byjp.me/ns/kindle-location",
+  generator: { id: "https://book-margin.byjp.me", name: "Book Margin" },
   importedAt: "2026-06-27T00:00:00.000Z",
 };
 
@@ -37,7 +37,7 @@ test("a bare highlight maps to a highlighting note with a quote + location fragm
         exact: "Care about your craft.",
         refinedBy: {
           type: "FragmentSelector",
-          conformsTo: "https://kindle-margin.byjp.me/ns/kindle-location",
+          conformsTo: "https://book-margin.byjp.me/ns/kindle-location",
           value: "location=792-794&page=52",
         },
       },

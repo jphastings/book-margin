@@ -34,5 +34,5 @@ jobs:
         run: |
           ./wisp-cli byjp.me \
             --path ./apps/site/dist \
-            --site kindle-margin.byjp.me \
+            --site book-margin.byjp.me \
             --password "$WISP_APP_PASSWORD"

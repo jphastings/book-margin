@@ -12,11 +12,17 @@
 
 <main class="landing">
   <Brand size="hero" />
-  <h1>Sync your Kindle clippings with <a href="https://margin.at">Margin.at</a></h1>
+  <h1>
+    Sync your book notes & highlights with <a href="https://margin.at"
+      >Margin.at</a
+    >
+  </h1>
 
   {#if app.error}<p class="error">{app.error}</p>{/if}
 
-  <button class="primary big" onclick={() => fileInput.click()}>Upload My&nbsp;Clippings.txt</button>
+  <button class="primary big" onclick={() => fileInput.click()}
+    >Upload My&nbsp;Clippings.txt</button
+  >
   <input
     bind:this={fileInput}
     type="file"
