@@ -12,13 +12,23 @@
     return entry.clipping.addedAt ? Date.parse(entry.clipping.addedAt) : 0;
   }
 
-  // Within a book: by status (red → blue → yellow → green), then newest first.
+  // Where in the book the highlight sits: the precise Kindle location, else the
+  // page (Highlighted). Unplaced highlights sort last.
+  function position(entry: PlannedEntry): number {
+    const { location, page } = entry.clipping;
+    return location?.start ?? page ?? Number.POSITIVE_INFINITY;
+  }
+
+  // Within a book: by status (red → blue → yellow → green), then in reading
+  // order (increasing page/location), then oldest first.
   const rows = $derived(
     book.entries
       .map((entry) => ({ entry, status: app.statusFor(book, entry) }))
       .sort(
         (a, b) =>
-          STATUS_RANK[a.status] - STATUS_RANK[b.status] || addedTime(b.entry) - addedTime(a.entry),
+          STATUS_RANK[a.status] - STATUS_RANK[b.status] ||
+          position(a.entry) - position(b.entry) ||
+          addedTime(a.entry) - addedTime(b.entry),
       ),
   );
 
