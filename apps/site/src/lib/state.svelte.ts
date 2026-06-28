@@ -24,14 +24,26 @@ import {
   restoreSession,
   signOut,
 } from "@byjp/book-margin-web";
+import { version as APP_VERSION } from "../../package.json";
 import { DID_KEY } from "./config.ts";
 
 const PLAN_KEY = "book-margin:plan";
-const GENERATOR: MarginGenerator = {
-  id: HOMEPAGE,
-  name: "Book Margin (Web)",
-  homepage: HOMEPAGE,
+
+/** Human name of each import source, keyed by the locator namespace it uses. */
+const SOURCE_NAMES: Record<string, string> = {
+  [KINDLE_LOCATION_NS]: "Kindle Clippings",
+  [PAGE_NS]: "Highlighted Export",
 };
+
+/** Record generator: this tool (name + version) and the source it imported from. */
+function generatorFor(conformsTo: string): MarginGenerator {
+  const source = SOURCE_NAMES[conformsTo];
+  return {
+    id: HOMEPAGE,
+    name: `Book Margin ${APP_VERSION}${source ? ` (${source})` : ""}`,
+    homepage: HOMEPAGE,
+  };
+}
 
 export type View = "landing" | "analyzing" | "review";
 export type RowStatus = "fresh" | "update" | "present" | "missing-isbn";
@@ -182,13 +194,23 @@ class AppState {
       }
 
       this.importedAt = new Date().toISOString();
-      const base = { importedAt: this.importedAt, generator: GENERATOR, resolve: where };
+      const base = { importedAt: this.importedAt, resolve: where };
       const plan: PlannedBook[] = [];
       if (kindle.length > 0) {
-        plan.push(...(await planSync(kindle, { ...base, conformsTo: KINDLE_LOCATION_NS })));
+        const conformsTo = KINDLE_LOCATION_NS;
+        plan.push(
+          ...(await planSync(kindle, { ...base, conformsTo, generator: generatorFor(conformsTo) })),
+        );
       }
       if (highlighted.length > 0) {
-        plan.push(...(await planSync(highlighted, { ...base, conformsTo: PAGE_NS })));
+        const conformsTo = PAGE_NS;
+        plan.push(
+          ...(await planSync(highlighted, {
+            ...base,
+            conformsTo,
+            generator: generatorFor(conformsTo),
+          })),
+        );
       }
       this.plan = plan;
       this.savePlan();
@@ -220,7 +242,7 @@ class AppState {
       {
         conformsTo: target.conformsTo,
         importedAt: this.importedAt,
-        generator: GENERATOR,
+        generator: generatorFor(target.conformsTo),
         resolve: where,
       },
     );
