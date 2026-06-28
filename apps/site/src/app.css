@@ -331,6 +331,18 @@ input[type="text"]:focus {
   font-size: 1.15rem;
   margin: 0;
 }
+.title-fresh {
+  color: var(--accent);
+}
+.title-present {
+  color: var(--green);
+}
+.title-update {
+  color: var(--yellow);
+}
+.title-missing-isbn {
+  color: var(--red);
+}
 .book-author {
   color: var(--muted);
   font-size: 0.9rem;
@@ -387,10 +399,34 @@ button.book-isbn:hover {
 
 /* ---- record card (Margin style) ---- */
 .record {
-  background: var(--card);
-  border-radius: 12px;
+  --status-color: var(--accent);
+  background: color-mix(in srgb, var(--status-color) 7%, var(--card));
+  border-left: 4px solid var(--status-color);
+  border-radius: 4px 12px 12px 4px;
   padding: 0.85rem 1rem;
   margin: 0.6rem 0;
+}
+.record-fresh {
+  --status-color: var(--accent);
+}
+.record-present {
+  --status-color: var(--green);
+}
+.record-update {
+  --status-color: var(--yellow);
+}
+.record-missing-isbn {
+  --status-color: var(--red);
+}
+.record-excluded {
+  --status-color: var(--muted);
+  background: color-mix(in srgb, var(--muted) 6%, var(--card));
+}
+.record-excluded .book-title,
+.record-excluded .quote,
+.record-excluded .note,
+.record-excluded .loc {
+  color: var(--muted);
 }
 .record-head {
   display: flex;
@@ -424,7 +460,7 @@ button.book-isbn:hover {
 .quote {
   margin: 0;
   padding: 0.5rem 0.85rem;
-  border-left: 4px solid var(--tint, var(--accent));
+  border-left: 4px solid var(--status-color, var(--accent));
   border-radius: 0 6px 6px 0;
   background: var(--quote-bg);
   font-style: italic;
@@ -458,7 +494,7 @@ button.book-isbn:hover {
   border: none;
   border-radius: 6px;
   padding: 2px;
-  cursor: help;
+  cursor: pointer;
 }
 .status-present {
   color: var(--green);
@@ -471,6 +507,9 @@ button.book-isbn:hover {
 }
 .status-missing-isbn {
   color: var(--red);
+}
+.status.status-excluded {
+  color: var(--muted);
 }
 .status-tip {
   position: absolute;

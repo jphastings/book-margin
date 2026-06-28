@@ -32,6 +32,14 @@ const GENERATOR: MarginGenerator = {
 export type View = "landing" | "analyzing" | "review";
 export type RowStatus = "fresh" | "update" | "present" | "missing-isbn";
 
+/** Display order for statuses: red (needs attention) first, green (done) last. */
+export const STATUS_RANK: Record<RowStatus, number> = {
+  "missing-isbn": 0,
+  fresh: 1,
+  update: 2,
+  present: 3,
+};
+
 interface StoredPlan {
   importedAt: string;
   plan: PlannedBook[];
@@ -50,11 +58,15 @@ class AppState {
   plan = $state<PlannedBook[]>([]);
   importedAt = $state("");
   did = $state<string | undefined>(undefined);
+  handle = $state<string | undefined>(undefined);
   agent = $state<Authed["agent"] | undefined>(undefined);
   existing = $state<Map<string, MarginNote>>(new Map());
+  /** rkeys the user has toggled off; excluded from the save. */
+  excluded = $state<Set<string>>(new Set());
   error = $state("");
   saving = $state(false);
   savedCount = $state(0);
+  savingTotal = $state(0);
 
   get loggedIn(): boolean {
     return this.agent !== undefined;
@@ -72,6 +84,20 @@ class AppState {
     return this.plan.filter((book) => !book.isbn13).length;
   }
 
+  /** How many records will actually be written: fresh or update, and not toggled off. */
+  get pendingCount(): number {
+    let n = 0;
+    for (const book of this.plan) {
+      if (!book.isbn13) continue;
+      for (const entry of book.entries) {
+        if (entry.rkey && this.excluded.has(entry.rkey)) continue;
+        const status = this.statusFor(book, entry);
+        if (status === "fresh" || status === "update") n++;
+      }
+    }
+    return n;
+  }
+
   statusFor(book: PlannedBook, entry: PlannedEntry): RowStatus {
     if (!book.isbn13 || !entry.rkey) return "missing-isbn";
     // Signed out, we can't know what's on the server — everything is a fresh upload.
@@ -79,6 +105,17 @@ class AppState {
     const stored = this.existing.get(entry.rkey);
     if (!stored) return "fresh";
     return recordsEqual(entry.note, stored) ? "present" : "update";
+  }
+
+  isExcluded(rkey: string): boolean {
+    return this.excluded.has(rkey);
+  }
+
+  toggleExcluded(rkey: string): void {
+    const next = new Set(this.excluded);
+    if (next.has(rkey)) next.delete(rkey);
+    else next.add(rkey);
+    this.excluded = next;
   }
 
   async init(): Promise<void> {
@@ -160,6 +197,7 @@ class AppState {
     }
     this.agent = restored.agent;
     this.did = restored.did;
+    this.handle = restored.handle;
     await this.refreshExisting();
   }
 
@@ -170,8 +208,17 @@ class AppState {
     this.error = "";
     try {
       const client = createRepoClient(this.agent);
-      const entries = this.plan.filter((book) => book.isbn13).flatMap((book) => book.entries);
-      for (const entry of entries) {
+      const toSave: PlannedEntry[] = [];
+      for (const book of this.plan) {
+        if (!book.isbn13) continue;
+        for (const entry of book.entries) {
+          if (entry.rkey && this.excluded.has(entry.rkey)) continue;
+          const status = this.statusFor(book, entry);
+          if (status === "fresh" || status === "update") toSave.push(entry);
+        }
+      }
+      this.savingTotal = toSave.length;
+      for (const entry of toSave) {
         await client.putNote(entry.rkey!, entry.note!);
         this.savedCount++;
       }

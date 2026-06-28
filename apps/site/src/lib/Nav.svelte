@@ -34,13 +34,17 @@
 
   <div class="nav-right">
     {#if app.loggedIn}
-      <span class="who" title={app.did}>@{app.did?.slice(0, 12)}…</span>
+      <span class="who" title={app.did}>@{app.handle}</span>
       <button
         class="primary"
         onclick={() => void app.save()}
-        disabled={app.saving || app.totalRecords === 0}
+        disabled={app.saving || app.pendingCount === 0}
       >
-        {app.saving ? `Saving ${app.savedCount}/${app.totalRecords}…` : "Save notes"}
+        {#if app.saving}
+          Saving {app.savedCount}/{app.savingTotal}…
+        {:else}
+          Save {app.pendingCount} note{app.pendingCount === 1 ? "" : "s"}
+        {/if}
       </button>
     {:else}
       <form

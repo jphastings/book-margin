@@ -1,14 +1,14 @@
 <script lang="ts">
   import type { PlannedBook, PlannedEntry } from "@byjp/book-margin-core";
-  import type { RowStatus } from "./state.svelte.ts";
+  import { app, type RowStatus } from "./state.svelte.ts";
   import StatusIcon from "./StatusIcon.svelte";
 
   let { book, entry, status }: { book: PlannedBook; entry: PlannedEntry; status: RowStatus } =
     $props();
 
+  const excluded = $derived(entry.rkey ? app.isExcluded(entry.rkey) : false);
   const clipping = $derived(entry.clipping);
   const text = $derived(entry.note?.target.selector?.exact ?? clipping.text);
-  const tint = "var(--accent)";
   const where = $derived(locationLabel());
 
   function locationLabel(): string {
@@ -20,7 +20,7 @@
   }
 </script>
 
-<article class="record">
+<article class="record record-{status}" class:record-excluded={excluded}>
   <div class="record-head">
     <span class="source">
       <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -30,11 +30,15 @@
       <span class="book-title">{book.book.title}</span>
       {#if where}<span class="loc">{where}</span>{/if}
     </span>
-    <StatusIcon {status} />
+    <StatusIcon
+      {status}
+      {excluded}
+      ontoggle={entry.rkey ? () => app.toggleExcluded(entry.rkey!) : undefined}
+    />
   </div>
 
   {#if text}
-    <blockquote class="quote" style="--tint: {tint}">{text}</blockquote>
+    <blockquote class="quote">{text}</blockquote>
   {/if}
   {#if clipping.note}
     <p class="note"><span class="note-label">Note</span>{clipping.note}</p>

@@ -1,12 +1,29 @@
 <script lang="ts">
-  import type { PlannedBook } from "@byjp/book-margin-core";
+  import type { PlannedBook, PlannedEntry } from "@byjp/book-margin-core";
+  import { app, STATUS_RANK } from "./state.svelte.ts";
   import RecordCard from "./RecordCard.svelte";
-  import { app } from "./state.svelte.ts";
 
   let { book, index }: { book: PlannedBook; index: number } = $props();
 
   let editing = $state(false);
   let isbn = $state("");
+
+  function addedTime(entry: PlannedEntry): number {
+    return entry.clipping.addedAt ? Date.parse(entry.clipping.addedAt) : 0;
+  }
+
+  // Within a book: by status (red → blue → yellow → green), then newest first.
+  const rows = $derived(
+    book.entries
+      .map((entry) => ({ entry, status: app.statusFor(book, entry) }))
+      .sort(
+        (a, b) =>
+          STATUS_RANK[a.status] - STATUS_RANK[b.status] || addedTime(b.entry) - addedTime(a.entry),
+      ),
+  );
+
+  // The book's colour = its most urgent record's status (first after the sort).
+  const titleStatus = $derived(rows[0]?.status ?? "fresh");
 
   function startEdit() {
     isbn = book.isbn13 ?? "";
@@ -27,7 +44,7 @@
 <section class="book" class:missing={!book.isbn13}>
   <header class="book-head">
     <div class="book-meta">
-      <h2>{book.book.title}</h2>
+      <h2 class="title-{titleStatus}">{book.book.title}</h2>
       {#if book.book.author}<p class="book-author">{book.book.author}</p>{/if}
     </div>
 
@@ -63,7 +80,7 @@
     </div>
   </header>
 
-  {#each book.entries as entry, i (entry.rkey ?? i)}
-    <RecordCard {book} {entry} status={app.statusFor(book, entry)} />
+  {#each rows as { entry, status }, i (entry.rkey ?? i)}
+    <RecordCard {book} {entry} {status} />
   {/each}
 </section>

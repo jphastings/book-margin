@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { RowStatus } from "./state.svelte.ts";
 
-  let { status }: { status: RowStatus } = $props();
+  let {
+    status,
+    excluded = false,
+    ontoggle,
+  }: { status: RowStatus; excluded?: boolean; ontoggle?: () => void } = $props();
 
   const label: Record<RowStatus, string> = {
     present: "Already saved — no change needed",
@@ -9,9 +13,17 @@
     update: "Will be updated",
     "missing-isbn": "No ISBN — can't be saved",
   };
+  const tip = $derived(excluded ? "Skipped — tap to include" : label[status]);
 </script>
 
-<button type="button" class="status status-{status}" aria-label={label[status]}>
+<button
+  type="button"
+  class="status status-{status}"
+  class:status-excluded={excluded}
+  aria-label={tip}
+  aria-pressed={excluded}
+  onclick={ontoggle}
+>
   {#if status === "present"}
     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
       <circle cx="12" cy="12" r="9" />
@@ -35,5 +47,5 @@
       <circle cx="12" cy="16.6" r="0.1" />
     </svg>
   {/if}
-  <span class="status-tip" role="tooltip">{label[status]}</span>
+  <span class="status-tip">{tip}</span>
 </button>
