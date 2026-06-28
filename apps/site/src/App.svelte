@@ -11,9 +11,10 @@
 
   setupOAuth();
 
-  const path = location.pathname;
+  // Normalise a trailing slash: a static host may serve /callback as /callback/.
+  const path = location.pathname.replace(/\/+$/, "") || "/";
   const route =
-    path === "/callback" ? "callback" : path.startsWith("/ns/kindle-location") ? "spec" : "app";
+    path === "/callback" ? "callback" : path === "/ns/kindle-location" ? "spec" : "app";
 
   onMount(() => {
     if (route === "app") void app.init();

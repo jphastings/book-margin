@@ -1,3 +1,4 @@
-# SPA fallback: serve the app for client-routed paths (/callback, /ns/kindle-location).
-# Real files (e.g. /client-metadata.json) are served before this rule applies.
+# wisp.place SPA fallback: serve the app for client-routed paths
+# (/callback, /ns/kindle-location). Real files (e.g. /oauth-client-metadata.json)
+# match before this wildcard rule, so they're served directly.
 /*  /index.html  200

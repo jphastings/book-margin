@@ -1,0 +1,38 @@
+name: Deploy to wisp.place
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+
+      # Builds every package in dependency order (kindle-clippings + core before
+      # the site bundles them, then the site's `vp build`).
+      - name: Build
+        run: npx vp run -r build
+
+      - name: Download wisp-cli
+        run: |
+          curl -fsSL https://sites.wisp.place/nekomimi.pet/wisp-cli-binaries/wisp-cli-x86_64-linux -o wisp-cli
+          chmod +x wisp-cli
+
+      - name: Deploy site
+        env:
+          WISP_APP_PASSWORD: ${{ secrets.WISP_APP_PASSWORD }}
+        run: |
+          ./wisp-cli byjp.me \
+            --path ./apps/site/dist \
+            --site kindle-margin.byjp.me \
+            --password "$WISP_APP_PASSWORD"
