@@ -115,7 +115,10 @@ class AppState {
     if (!this.agent) return "fresh";
     const stored = this.existing.get(entry.rkey);
     if (!stored) return "fresh";
-    return recordsEqual(entry.note, stored) ? "present" : "update";
+    // An undated highlight re-imports with a fresh createdAt (the import time),
+    // so ignore createdAt when comparing — otherwise it would always look changed.
+    const ignore = entry.clipping.addedAt ? undefined : ["createdAt"];
+    return recordsEqual(entry.note, stored, ignore) ? "present" : "update";
   }
 
   isExcluded(entry: PlannedEntry): boolean {

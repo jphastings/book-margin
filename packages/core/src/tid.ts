@@ -1,30 +1,37 @@
 const S32_ALPHABET = "234567abcdefghijklmnopqrstuvwxyz";
 const MICROS_PER_SECOND = 1_000_000n;
+// One (non-leap) year of microseconds — the span of the sentinel year (1970,
+// the first a TID can represent) that undated records are scattered across.
+const MICROS_PER_YEAR = 365n * 24n * 60n * 60n * MICROS_PER_SECOND;
 
 /**
  * Build a deterministic atproto TID (the 13-char rkey) from a stable seed and a
  * timestamp.
  *
- * The TID's time component is the record's timestamp at second resolution, so
- * records sort chronologically. The microseconds and the 10-bit clock field —
- * normally a clock reading plus randomness — are instead derived from
- * SHA-256(seed), making the whole rkey a pure function of the record's identity:
- * the same annotation always targets the same rkey, so re-syncs are idempotent
- * with no repo reads. Seeding ~30 bits from the hash keeps keys collision-free
- * even when many records share a timestamp (e.g. a locale whose dates we can't
- * parse and that all fall back to import time).
+ * For a dated record the TID's time component is the timestamp at second
+ * resolution, so records sort chronologically; the microseconds and the 10-bit
+ * clock field are derived from SHA-256(seed) rather than a clock. The whole rkey
+ * is therefore a pure function of the record's identity — the same annotation
+ * always targets the same rkey, so re-syncs are idempotent with no repo reads.
+ *
+ * An undated record (an empty/unparseable timestamp) is instead placed somewhere
+ * in the sentinel year 1970, with its *entire* sub-year offset taken from the
+ * hash. That keeps such records grouped at the very start of the repo while
+ * giving them a large space — ~45 bits of micro-seconds plus the 10-bit clock —
+ * in which to stay collision-free, which matters because timestamp-less imports
+ * are common and would otherwise crowd into a single instant and potentially clash.
  */
 export async function deterministicTid(seed: string, isoTimestamp: string): Promise<string> {
-  const ms = Date.parse(isoTimestamp);
-  const seconds = BigInt(Number.isNaN(ms) ? 0 : Math.floor(ms / 1000));
-
   const digest = new Uint8Array(
     await crypto.subtle.digest("SHA-256", new TextEncoder().encode(seed)),
   );
-  const subSecondMicros = BigInt(readUint32(digest, 0) % 1_000_000);
   const clockId = BigInt(((digest[4]! << 8) | digest[5]!) & 0x3ff);
 
-  const micros = seconds * MICROS_PER_SECOND + subSecondMicros;
+  const ms = Date.parse(isoTimestamp);
+  const micros = Number.isNaN(ms)
+    ? readBig(digest, 6, 7) % MICROS_PER_YEAR
+    : BigInt(Math.floor(ms / 1000)) * MICROS_PER_SECOND + BigInt(readUint32(digest, 0) % 1_000_000);
+
   return encodeTid((micros << 10n) | clockId);
 }
 
@@ -47,4 +54,11 @@ function readUint32(bytes: Uint8Array, offset: number): number {
       bytes[offset + 3]!) >>>
     0
   );
+}
+
+/** Read `length` big-endian bytes from `offset` as a bigint. */
+function readBig(bytes: Uint8Array, offset: number, length: number): bigint {
+  let value = 0n;
+  for (let i = 0; i < length; i++) value = (value << 8n) | BigInt(bytes[offset + i]!);
+  return value;
 }

@@ -19,3 +19,10 @@ test("arrays compare element-wise and order-sensitively", () => {
   expect(recordsEqual({ tags: ["a", "b"] }, { tags: ["a", "b"] })).toBe(true);
   expect(recordsEqual({ tags: ["a", "b"] }, { tags: ["b", "a"] })).toBe(false);
 });
+
+test("ignoreKeys drops named top-level fields before comparing", () => {
+  const a = { text: "hi", createdAt: "2026-06-28T00:00:00.000Z" };
+  const b = { text: "hi", createdAt: "2024-01-01T00:00:00.000Z" };
+  expect(recordsEqual(a, b)).toBe(false);
+  expect(recordsEqual(a, b, ["createdAt"])).toBe(true);
+});

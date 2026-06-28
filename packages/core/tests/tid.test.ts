@@ -24,3 +24,16 @@ test("later timestamps sort after earlier ones (lexicographically)", async () =>
   const later = await deterministicTid("seed", "2026-06-27T00:00:00.000Z");
   expect(later > earlier).toBe(true);
 });
+
+test("an undated record is stable and seed-dependent", async () => {
+  expect(await deterministicTid("seed", "")).toMatch(TID);
+  expect(await deterministicTid("one", "")).toBe(await deterministicTid("one", ""));
+  // Distinct highlights spread across the sentinel year rather than colliding.
+  expect(await deterministicTid("one", "")).not.toBe(await deterministicTid("two", ""));
+});
+
+test("undated records sort before any real (post-1970) timestamp", async () => {
+  const undated = await deterministicTid("seed", "");
+  const dated = await deterministicTid("seed", "2010-01-01T00:00:00.000Z");
+  expect(undated < dated).toBe(true);
+});

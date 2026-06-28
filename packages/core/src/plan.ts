@@ -86,10 +86,9 @@ export async function planBook(
       importedAt: options.importedAt,
       ...(options.generator ? { generator: options.generator } : {}),
     });
-    // Undated annotations (e.g. Highlighted exports) use a fixed epoch so the
-    // rkey is a pure function of identity and re-imports stay idempotent rather
-    // than minting a new key each time; the record's createdAt still falls back
-    // to importedAt in the mapper.
+    // Undated annotations (e.g. Highlighted exports) pass an empty timestamp, so
+    // their rkey is a pure function of identity (placed in the 1970 sentinel
+    // year) and re-imports target the same record rather than minting a new key.
     const rkey = await deterministicTid(clipping.id, clipping.addedAt ?? "");
     if (seen.has(rkey)) {
       collapsed++;
