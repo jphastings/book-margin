@@ -16,8 +16,9 @@ import {
   OAuthUserAgent,
 } from "@atcute/oauth-browser-client";
 
-// `transition:generic` grants the broad repo read/write access this tool needs.
-const SCOPE = "atproto transition:generic";
+// Request only what this tool needs: creating and updating `at.margin.note`
+// records. (`atproto` is the required base scope; reads use public endpoints.)
+const SCOPE = "atproto repo:at.margin.note?action=create&action=update";
 
 export interface OAuthConfig {
   /** The URL where this app's client metadata is hosted (the OAuth client_id). */

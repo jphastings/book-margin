@@ -1,7 +1,7 @@
 import { configure } from "@byjp/book-margin-web";
 
 // Must match the scope requested in @byjp/book-margin-web's oauth client.
-const SCOPE = "atproto transition:generic";
+const SCOPE = "atproto repo:at.margin.note?action=create&action=update";
 
 const origin = location.origin;
 // atproto's development "loopback" client only works on 127.0.0.1 (not localhost).
