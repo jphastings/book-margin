@@ -144,6 +144,11 @@ class AppState {
     this.excluded = next;
   }
 
+  /** Exclude or re-include every record on the page at once (⌘/Ctrl-click). */
+  setAllExcluded(excluded: boolean): void {
+    this.excluded = excluded ? new Set(this.plan.flatMap((book) => book.entries)) : new Set();
+  }
+
   /** Pin a record's description open, closing any other; null/same toggles it shut. */
   peekTip(entry: PlannedEntry): void {
     this.openTip = this.openTip === entry ? undefined : entry;

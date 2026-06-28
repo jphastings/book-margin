@@ -12,8 +12,9 @@
   // tapping the icon toggles exclusion (and pins this card's description).
   const showTip = $derived(app.openTip === entry);
 
-  function toggleSkip() {
-    app.toggleExcluded(entry);
+  function toggleSkip(all: boolean) {
+    if (all) app.setAllExcluded(!app.isExcluded(entry));
+    else app.toggleExcluded(entry);
     app.openTip = entry;
   }
 

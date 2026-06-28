@@ -12,7 +12,8 @@
     status: RowStatus;
     excluded?: boolean;
     showTip?: boolean;
-    ontoggle?: () => void;
+    /** `all` is true when the primary modifier (⌘/Ctrl) is held — apply to every record. */
+    ontoggle?: (all: boolean) => void;
     onshow?: () => void;
     onhide?: () => void;
   } = $props();
@@ -26,9 +27,10 @@
   const tip = $derived(excluded ? "Will not be saved" : label[status]);
 
   // Tapping the icon toggles exclusion; never let it bubble to the card.
+  // Holding ⌘ (macOS) or Ctrl applies the new value to every record.
   function onclick(event: MouseEvent) {
     event.stopPropagation();
-    ontoggle?.();
+    ontoggle?.(event.metaKey || event.ctrlKey);
   }
 </script>
 
