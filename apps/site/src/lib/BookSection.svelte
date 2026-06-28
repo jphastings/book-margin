@@ -22,8 +22,12 @@
       ),
   );
 
-  // The book's colour = its most urgent record's status (first after the sort).
+  // The book's colour = its most urgent record's status (first after the sort),
+  // unless every record is disabled — then the whole book greys out.
   const titleStatus = $derived(rows[0]?.status ?? "fresh");
+  const allExcluded = $derived(
+    book.entries.length > 0 && book.entries.every((entry) => app.isExcluded(entry)),
+  );
 
   function startEdit() {
     isbn = book.isbn13 ?? "";
@@ -44,7 +48,7 @@
 <section class="book" class:missing={!book.isbn13}>
   <header class="book-head">
     <div class="book-meta">
-      <h2 class="title-{titleStatus}">{book.book.title}</h2>
+      <h2 class="title-{titleStatus}" class:title-excluded={allExcluded}>{book.book.title}</h2>
       {#if book.book.author}<p class="book-author">{book.book.author}</p>{/if}
     </div>
 

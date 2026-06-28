@@ -61,8 +61,10 @@ class AppState {
   handle = $state<string | undefined>(undefined);
   agent = $state<Authed["agent"] | undefined>(undefined);
   existing = $state<Map<string, MarginNote>>(new Map());
-  /** rkeys the user has toggled off; excluded from the save. */
-  excluded = $state<Set<string>>(new Set());
+  /** Records the user has toggled off; excluded from the save. */
+  excluded = $state<Set<PlannedEntry>>(new Set());
+  /** The one record whose status description is pinned open (only one at a time). */
+  openTip = $state<PlannedEntry | undefined>(undefined);
   error = $state("");
   saving = $state(false);
   savedCount = $state(0);
@@ -90,7 +92,7 @@ class AppState {
     for (const book of this.plan) {
       if (!book.isbn13) continue;
       for (const entry of book.entries) {
-        if (entry.rkey && this.excluded.has(entry.rkey)) continue;
+        if (this.excluded.has(entry)) continue;
         const status = this.statusFor(book, entry);
         if (status === "fresh" || status === "update") n++;
       }
@@ -107,15 +109,20 @@ class AppState {
     return recordsEqual(entry.note, stored) ? "present" : "update";
   }
 
-  isExcluded(rkey: string): boolean {
-    return this.excluded.has(rkey);
+  isExcluded(entry: PlannedEntry): boolean {
+    return this.excluded.has(entry);
   }
 
-  toggleExcluded(rkey: string): void {
+  toggleExcluded(entry: PlannedEntry): void {
     const next = new Set(this.excluded);
-    if (next.has(rkey)) next.delete(rkey);
-    else next.add(rkey);
+    if (next.has(entry)) next.delete(entry);
+    else next.add(entry);
     this.excluded = next;
+  }
+
+  /** Pin a record's description open, closing any other; null/same toggles it shut. */
+  peekTip(entry: PlannedEntry): void {
+    this.openTip = this.openTip === entry ? undefined : entry;
   }
 
   async init(): Promise<void> {
@@ -212,7 +219,7 @@ class AppState {
       for (const book of this.plan) {
         if (!book.isbn13) continue;
         for (const entry of book.entries) {
-          if (entry.rkey && this.excluded.has(entry.rkey)) continue;
+          if (this.excluded.has(entry)) continue;
           const status = this.statusFor(book, entry);
           if (status === "fresh" || status === "update") toSave.push(entry);
         }

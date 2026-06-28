@@ -343,6 +343,9 @@ input[type="text"]:focus {
 .title-missing-isbn {
   color: var(--red);
 }
+.title-excluded {
+  color: var(--muted);
+}
 .book-author {
   color: var(--muted);
   font-size: 0.9rem;
@@ -447,7 +450,7 @@ button.book-isbn:hover {
   color: var(--accent);
 }
 .book-title {
-  color: var(--accent-ink);
+  color: var(--status-color, var(--accent-ink));
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
@@ -513,8 +516,9 @@ button.book-isbn:hover {
 }
 .status-tip {
   position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
+  right: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 30;
   white-space: nowrap;
   background: var(--surface);
@@ -530,7 +534,8 @@ button.book-isbn:hover {
   pointer-events: none;
 }
 .status:hover .status-tip,
-.status:focus .status-tip {
+.status:focus .status-tip,
+.status-tip.visible {
   opacity: 1;
   visibility: visible;
 }
