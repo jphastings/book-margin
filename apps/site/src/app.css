@@ -302,13 +302,24 @@ input[type="text"]:focus {
   filter: brightness(0.93);
 }
 
-.who {
-  color: var(--muted);
-  font-size: 0.85rem;
+/* The handle reads as plain text but is a button that opens the log-out dialog. */
+.nav-right .who {
   max-width: 9rem;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.nav-right .who:hover {
+  color: var(--fg);
+  text-decoration: underline;
 }
 
 /* On small screens, wrap the stats onto their own line so they stay visible. */
@@ -581,8 +592,14 @@ button.book-isbn:hover {
   margin: 1.15rem 0;
 }
 
-.record > .status {
-  margin-top: 0.1rem;
+/* Full-height strip left of the rule: the only place a tap peeks the status. */
+.record-gutter {
+  align-self: stretch;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.1rem;
+  cursor: default;
 }
 
 .record-body {

@@ -22,6 +22,7 @@ import {
   createRepoClient,
   listExistingNotes,
   restoreSession,
+  signOut,
 } from "@byjp/book-margin-web";
 import { DID_KEY } from "./config.ts";
 
@@ -227,6 +228,17 @@ class AppState {
   async login(handle: string): Promise<void> {
     this.savePlan();
     await beginLogin(handle.trim());
+  }
+
+  /** Sign out of atproto, keeping the imported highlights on the page. */
+  async logout(): Promise<void> {
+    const did = this.did;
+    this.agent = undefined;
+    this.did = undefined;
+    this.handle = undefined;
+    this.existing = new Map();
+    localStorage.removeItem(DID_KEY);
+    if (did) await signOut(did);
   }
 
   async restoreAuth(): Promise<void> {

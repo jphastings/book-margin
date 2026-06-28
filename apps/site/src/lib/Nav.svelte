@@ -6,6 +6,7 @@
   let cycle = 0;
   let cycleCount = 0;
   let resetDialog: HTMLDialogElement;
+  let logoutDialog: HTMLDialogElement;
 
   /** Scroll to the next book still missing an ISBN, cycling back to the first. */
   function scrollToNextMissing() {
@@ -42,7 +43,12 @@
 
   <div class="nav-right">
     {#if app.loggedIn}
-      <span class="who" title={app.did}>@{app.handle}</span>
+      <button
+        type="button"
+        class="who"
+        title="Log out of @{app.handle}"
+        onclick={() => logoutDialog.showModal()}>@{app.handle}</button
+      >
       <button
         class="primary"
         onclick={() => void app.save()}
@@ -50,6 +56,8 @@
       >
         {#if app.saving}
           Saving {app.savedCount}/{app.savingTotal}…
+        {:else if app.pendingCount === 0}
+          No changes
         {:else}
           Save {app.pendingCount} note{app.pendingCount === 1 ? "" : "s"}
         {/if}
@@ -115,6 +123,25 @@
           resetDialog.close();
           app.reset();
         }}>Start over</button
+      >
+    </div>
+  </dialog>
+
+  <dialog class="confirm" bind:this={logoutDialog}>
+    <h2>Log out?</h2>
+    <p>
+      You'll be signed out of <strong>@{app.handle}</strong>. Your imported highlights stay on the
+      page.
+    </p>
+    <div class="confirm-actions">
+      <button type="button" class="ghost" onclick={() => logoutDialog.close()}>Cancel</button>
+      <button
+        type="button"
+        class="danger"
+        onclick={() => {
+          logoutDialog.close();
+          void app.logout();
+        }}>Log out</button
       >
     </div>
   </dialog>
