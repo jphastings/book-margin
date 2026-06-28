@@ -1,0 +1,30 @@
+{
+  "name": "kindle-margin",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "type": "module",
+  "scripts": {
+    "ready": "vp check && vp run -r test && vp run -r build"
+  },
+  "devDependencies": {
+    "vite-plus": "latest"
+  },
+  "overrides": {
+    "vite": "npm:@voidzero-dev/vite-plus-core@latest",
+    "vitest": "4.1.9"
+  },
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "version": "11.16.0",
+      "onFail": "download"
+    }
+  },
+  "engines": {
+    "node": ">=22.18.0"
+  }
+}

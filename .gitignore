@@ -1,0 +1,26 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.sw?
+
+# AI agent worktrees
+.claude/worktrees/
+
+# Local test data (real Kindle exports, sessions)
+/.data/
+*.session.json
