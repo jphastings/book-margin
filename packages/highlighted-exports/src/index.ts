@@ -15,10 +15,13 @@ const FOOTER = /^\*\*Created with \[Highlighted\]/;
  * Parse a Highlighted.app Markdown export into a {@link HighlightedExport}.
  *
  * The export is one book: an `# Highlights for …` title, an `### Author`, an
- * `ISBN:` line, then highlight blocks — a `>` quote, a `p. <page>` line, and
- * optional `Note:`/`Tags:` lines. Highlights become {@link Clipping}s with a
- * stable id (book + text, since there's no precise locator) and no timestamp;
- * the ISBN rides on the export so the caller can resolve the book for free.
+ * `ISBN:` line, then one highlight each — a `> ` first line (only the first line
+ * is quoted) followed by plain continuation lines, then plain `p. <page>`,
+ * `Note:` and `Tags:` lines. The quote is read as Markdown — single line breaks
+ * collapse to spaces, blank lines become paragraph breaks. Highlights become
+ * {@link Clipping}s with a stable id (book + text, since there's no precise
+ * locator) and no timestamp; the ISBN rides on the export so the caller can
+ * resolve the book for free.
  */
 export function parseHighlightedExport(markdown: string): HighlightedExport {
   const lines = markdown.replace(/^﻿/, "").replace(/\r\n?/g, "\n").split("\n");
@@ -28,13 +31,14 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
   let isbn: string | undefined;
 
   const clippings: Clipping[] = [];
+  // Quote lines in order; an empty string marks a blank (paragraph break) line.
   let quote: string[] = [];
   let page: number | undefined;
   let note: string | undefined;
-  let inQuote = false;
+  let inBlock = false;
 
   const flush = () => {
-    const text = quote.join(" ").replace(/\s+/g, " ").trim();
+    const text = joinMarkdown(quote);
     if (text) {
       clippings.push({
         id: clippingId({ title, ...(author ? { author } : {}), fallbackText: text }),
@@ -49,59 +53,60 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
     quote = [];
     page = undefined;
     note = undefined;
-    inQuote = false;
+    inBlock = false;
   };
 
   for (const raw of lines) {
     const line = raw.trim();
+    const quoted = line.startsWith(">");
+    const content = quoted ? line.replace(/^>\s?/, "").trim() : line;
 
-    if (line.startsWith(">")) {
-      if (!inQuote) flush();
-      inQuote = true;
-      quote.push(line.replace(/^>\s?/, ""));
-      continue;
-    }
-
-    if (FOOTER.test(line)) {
+    if (FOOTER.test(content)) {
       flush();
       break;
     }
 
-    if (!inQuote) {
-      const heading = line.match(/^#\s+(.+)$/);
-      if (heading && !title) {
-        title = heading[1]!.replace(/^Highlights for\s+/i, "").trim();
-        continue;
-      }
-      const byline = line.match(/^###\s+(.+)$/);
-      if (byline && !author) {
-        author = byline[1]!.trim();
-        continue;
-      }
-      const isbnLine = line.match(/^ISBN:\s*(\S+)/i);
-      if (isbnLine && !isbn) {
-        isbn = isbnLine[1]!.trim();
-        continue;
-      }
+    // Only the first line of each highlight is `>`-prefixed, so a `>` always
+    // starts a new highlight; its continuation lines and metadata are plain.
+    if (quoted) {
+      flush();
+      inBlock = true;
+      quote.push(content);
       continue;
     }
 
-    // Within a block: a blank line ends it; otherwise pick up its metadata.
-    if (line === "") {
-      flush();
+    if (inBlock) {
+      const pageLine = content.match(/^p\.?\s*(\d+)/i);
+      if (pageLine) {
+        page = Number(pageLine[1]);
+        continue;
+      }
+      const noteLine = content.match(/^Note:\s*(.+)$/i);
+      if (noteLine) {
+        note = noteLine[1]!.trim();
+        continue;
+      }
+      if (/^Tags:/i.test(content)) continue;
+      // A continuation line, or a blank line (which marks a paragraph break).
+      quote.push(content);
       continue;
     }
-    const pageLine = line.match(/^p\.?\s*(\d+)/i);
-    if (pageLine) {
-      page = Number(pageLine[1]);
+
+    // Header region (before the first highlight).
+    const heading = content.match(/^#\s+(.+)$/);
+    if (heading && !title) {
+      title = heading[1]!.replace(/^Highlights for\s+/i, "").trim();
       continue;
     }
-    const noteLine = line.match(/^Note:\s*(.+)$/i);
-    if (noteLine) {
-      note = noteLine[1]!.trim();
+    const byline = content.match(/^###\s+(.+)$/);
+    if (byline && !author) {
+      author = byline[1]!.trim();
       continue;
     }
-    // Tags and any other metadata lines are ignored.
+    const isbnLine = content.match(/^ISBN:\s*(\S+)/i);
+    if (isbnLine && !isbn) {
+      isbn = isbnLine[1]!.trim();
+    }
   }
   flush();
 
@@ -111,4 +116,20 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
     ...(isbn ? { isbn } : {}),
     clippings,
   };
+}
+
+/** Join quote lines as Markdown: blank lines split paragraphs, the rest join with spaces. */
+function joinMarkdown(lines: string[]): string {
+  const paragraphs: string[] = [];
+  let current: string[] = [];
+  for (const line of lines) {
+    if (line === "") {
+      if (current.length > 0) paragraphs.push(current.join(" "));
+      current = [];
+    } else {
+      current.push(line);
+    }
+  }
+  if (current.length > 0) paragraphs.push(current.join(" "));
+  return paragraphs.join("\n");
 }
