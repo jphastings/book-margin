@@ -29,6 +29,18 @@ export async function listExistingNotes(agent: OAuthUserAgent): Promise<Map<stri
   return notes;
 }
 
+/**
+ * Whether a repo-call error means the session is dead and the user must sign in
+ * again — a refresh that couldn't be completed (`TokenRefreshError`), or the PDS
+ * rejecting the request as unauthorized/forbidden (HTTP 401/403). Token *expiry*
+ * alone isn't here: the agent refreshes that transparently before each request.
+ */
+export function isSessionExpiredError(error: unknown): boolean {
+  if (typeof error !== "object" || error === null) return false;
+  const e = error as { name?: string; status?: number };
+  return e.name === "TokenRefreshError" || e.status === 401 || e.status === 403;
+}
+
 /** Adapt an OAuth-authenticated agent to the core {@link RepoClient} interface. */
 export function createRepoClient(agent: OAuthUserAgent): RepoClient {
   const rpc = new Client({ handler: agent });

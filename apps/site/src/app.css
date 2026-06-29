@@ -165,7 +165,7 @@ input[type="text"]:focus {
   border-bottom: 1px solid var(--border);
 }
 
-.nav>.brand {
+.nav > .brand {
   flex: none;
 }
 
@@ -577,6 +577,8 @@ input[type="text"]:focus {
   display: flex;
   flex-direction: column;
   line-height: 1.5;
+  /* offset for optical centring */
+  margin-top: -4px;
 
   code {
     font-size: 0.88rem;

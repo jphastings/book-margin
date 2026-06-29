@@ -13,10 +13,14 @@
   }
 
   // Where in the book the highlight sits: the precise Kindle location, else the
-  // page (Highlighted). Unplaced highlights sort last.
+  // page (Highlighted, whose start is taken from a range). Highlights we can't
+  // place numerically (e.g. roman-numeral pages) sort last.
   function position(entry: PlannedEntry): number {
     const { location, page } = entry.clipping;
-    return location?.start ?? page ?? Number.POSITIVE_INFINITY;
+    if (location) return location.start;
+    if (page === undefined) return Number.POSITIVE_INFINITY;
+    const start = Number.parseInt(Array.isArray(page) ? page[0] : page, 10);
+    return Number.isNaN(start) ? Number.POSITIVE_INFINITY : start;
   }
 
   // Within a book: by status (red → blue → yellow → green), then in reading

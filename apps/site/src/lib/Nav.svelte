@@ -49,19 +49,30 @@
         title="Log out of @{app.handle}"
         onclick={() => logoutDialog.showModal()}>@{app.handle}</button
       >
-      <button
-        class="primary"
-        onclick={() => void app.save()}
-        disabled={app.saving || app.pendingCount === 0}
-      >
-        {#if app.saving}
-          Saving {app.savedCount}/{app.savingTotal}…
-        {:else if app.pendingCount === 0}
-          No changes
-        {:else}
-          Save {app.pendingCount} note{app.pendingCount === 1 ? "" : "s"}
-        {/if}
-      </button>
+      {#if app.sessionExpired}
+        <button
+          class="primary"
+          type="button"
+          title="Your session expired — sign in again to save"
+          onclick={() => void app.reauth()}
+        >
+          Log in again
+        </button>
+      {:else}
+        <button
+          class="primary"
+          onclick={() => void app.save()}
+          disabled={app.saving || app.pendingCount === 0}
+        >
+          {#if app.saving}
+            Saving {app.savedCount}/{app.savingTotal}…
+          {:else if app.pendingCount === 0}
+            No changes
+          {:else}
+            Save {app.pendingCount} note{app.pendingCount === 1 ? "" : "s"}
+          {/if}
+        </button>
+      {/if}
     {:else}
       <form
         onsubmit={(e) => {
@@ -109,8 +120,8 @@
   <dialog class="confirm" bind:this={resetDialog}>
     <h2>Start over?</h2>
     <p>
-      This will clear the page & let you upload new files. None of your Margin
-      records will be changed.
+      This will clear the list of highlights to let you upload new files. None
+      of your Margin records will be removed or changed.
     </p>
     <div class="confirm-actions">
       <button type="button" class="ghost" onclick={() => resetDialog.close()}
@@ -130,11 +141,13 @@
   <dialog class="confirm" bind:this={logoutDialog}>
     <h2>Log out?</h2>
     <p>
-      You'll be signed out of <strong>@{app.handle}</strong>. Your imported highlights stay on the
-      page.
+      You'll be signed out of <strong>@{app.handle}</strong>. The list of
+      highlights will remain.
     </p>
     <div class="confirm-actions">
-      <button type="button" class="ghost" onclick={() => logoutDialog.close()}>Cancel</button>
+      <button type="button" class="ghost" onclick={() => logoutDialog.close()}
+        >Cancel</button
+      >
       <button
         type="button"
         class="danger"

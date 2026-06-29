@@ -20,6 +20,7 @@ import {
   beginLogin,
   createLocalIsbnStore,
   createRepoClient,
+  isSessionExpiredError,
   listExistingNotes,
   restoreSession,
   signOut,
@@ -92,6 +93,8 @@ class AppState {
   saving = $state(false);
   savedCount = $state(0);
   savingTotal = $state(0);
+  /** The session's tokens can no longer be refreshed — the user must sign in again. */
+  sessionExpired = $state(false);
 
   get loggedIn(): boolean {
     return this.agent !== undefined;
@@ -262,6 +265,12 @@ class AppState {
     await beginLogin(handle.trim());
   }
 
+  /** Re-run OAuth for the already-known identity after its session expired. */
+  async reauth(): Promise<void> {
+    const identifier = this.handle ?? this.did;
+    if (identifier) await this.login(identifier);
+  }
+
   /** Sign out of atproto, keeping the imported highlights on the page. */
   async logout(): Promise<void> {
     const did = this.did;
@@ -269,6 +278,7 @@ class AppState {
     this.did = undefined;
     this.handle = undefined;
     this.existing = new Map();
+    this.sessionExpired = false;
     localStorage.removeItem(DID_KEY);
     if (did) await signOut(did);
   }
@@ -310,7 +320,8 @@ class AppState {
       }
       await this.refreshExisting();
     } catch (error) {
-      this.error = message(error);
+      if (isSessionExpiredError(error)) this.sessionExpired = true;
+      else this.error = message(error);
     } finally {
       this.saving = false;
     }
@@ -336,8 +347,12 @@ class AppState {
     if (!this.agent) return;
     try {
       this.existing = await listExistingNotes(this.agent);
-    } catch {
-      // Non-fatal: without this we just can't distinguish saved vs. new records.
+      this.sessionExpired = false;
+    } catch (error) {
+      // A dead session surfaces here too (this runs on load); flag it so the UI
+      // can offer re-login. Any other failure is non-fatal — we just can't then
+      // distinguish saved vs. new records.
+      if (isSessionExpiredError(error)) this.sessionExpired = true;
     }
   }
 
