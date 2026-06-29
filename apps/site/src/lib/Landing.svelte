@@ -11,9 +11,9 @@
 </script>
 
 <main class="landing">
-  <Brand size="hero" />
   <h1>
-    Sync your book highlights with <a href="https://margin.at">Margin.at</a>
+    Sync your <u>Book</u> highlights with
+    <a href="https://margin.at">Margin.at</a>
   </h1>
 
   {#if app.error}<p class="error">{app.error}</p>{/if}
@@ -23,14 +23,14 @@
       <img class="source-logo" src="/logos/kindle.png" alt="Kindle" />
       <div class="source-text">
         <strong>Kindle</strong>
-        <span><code>My&nbsp;Clippings.txt</code></span>
+        <code>My&nbsp;Clippings.txt</code>
       </div>
     </li>
     <li class="source-card">
       <img class="source-logo" src="/logos/highlighted.png" alt="Highlighted" />
       <div class="source-text">
         <strong>Highlighted</strong>
-        <span>Markdown exports</span>
+        <code>Highlights&nbsp;for&hellip;.md</code>
       </div>
     </li>
   </ul>
