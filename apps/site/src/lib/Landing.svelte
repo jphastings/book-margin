@@ -20,14 +20,25 @@
 
   <ul class="sources">
     <li class="source-card">
-      <img class="source-logo" src="/logos/kindle.png" alt="Kindle" />
+      <a
+        href="https://amazon.co.uk/Kindle-Ereaders/b?node=5157836031"
+        target="_blank"
+      >
+        <img class="source-logo" src="/logos/kindle.png" alt="Kindle" />
+      </a>
       <div class="source-text">
-        <strong>Kindle</strong>
+        <strong>Kindle devices</strong>
         <code>My&nbsp;Clippings.txt</code>
       </div>
     </li>
     <li class="source-card">
-      <img class="source-logo" src="/logos/highlighted.png" alt="Highlighted" />
+      <a href="https://highlighted.app/" target="_blank">
+        <img
+          class="source-logo"
+          src="/logos/highlighted.png"
+          alt="Highlighted"
+        />
+      </a>
       <div class="source-text">
         <strong>Highlighted</strong>
         <code>Highlights&nbsp;for&hellip;.md</code>
