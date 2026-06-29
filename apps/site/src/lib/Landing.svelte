@@ -12,7 +12,7 @@
 
 <main class="landing">
   <h1>
-    Sync your <u>Book</u> highlights with
+    Sync your <u>Book</u> highlights to
     <a href="https://margin.at">Margin.at</a>
   </h1>
 
