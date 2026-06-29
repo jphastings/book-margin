@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+# Don't let two release runs race on the version PR or the tags.
+concurrency: release-${{ github.ref }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history so `changeset tag` can see which version tags exist.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm install
+
+      # With changesets present, opens/updates the "Version Packages" PR (bumps
+      # versions + writes changelogs). Once that PR is merged and none remain,
+      # `changeset tag` cuts a git tag per newly-versioned package and the action
+      # creates a GitHub Release for each. No npm publish.
+      - name: Version or tag
+        uses: changesets/action@v1
+        with:
+          version: npm run version-packages
+          publish: npx changeset tag
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
