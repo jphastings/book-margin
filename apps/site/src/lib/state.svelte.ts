@@ -4,7 +4,7 @@ import {
   KINDLE_LOCATION_NS,
   type MarginGenerator,
   type MarginNote,
-  PAGE_NS,
+  PHYSICAL_BOOK_NS,
   planBook,
   type PlannedBook,
   type PlannedEntry,
@@ -32,7 +32,7 @@ const PLAN_KEY = "book-margin:plan";
 /** Human name of each import source, keyed by the locator namespace it uses. */
 const SOURCE_NAMES: Record<string, string> = {
   [KINDLE_LOCATION_NS]: "Kindle Clippings",
-  [PAGE_NS]: "Highlighted Export",
+  [PHYSICAL_BOOK_NS]: "Highlighted Export",
 };
 
 /** Record generator: this tool (name + version) and the source it imported from. */
@@ -210,7 +210,7 @@ class AppState {
         );
       }
       if (highlighted.length > 0) {
-        const conformsTo = PAGE_NS;
+        const conformsTo = PHYSICAL_BOOK_NS;
         plan.push(
           ...(await planSync(highlighted, {
             ...base,
