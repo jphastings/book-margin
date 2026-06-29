@@ -37,13 +37,13 @@ test("turns each blockquote into a highlight with its page and note", () => {
     kind: "highlight",
     title: "The Celtic Tree Calendar",
     author: "Michael Vescoli",
-    page: 12,
+    page: "12",
     text: "People who believe in the immortality of the soul do not need to accumulate power, build empires or prepare lasting defences.",
     note: "This feels a little trite, but it's interesting that it even fits.",
   });
 
-  // A page range keeps its starting page; a note-less highlight has no note.
-  expect(clippings[1]!.page).toBe(18);
+  // A page range becomes a [start, end] span; a note-less highlight has no note.
+  expect(clippings[1]!.page).toEqual(["18", "19"]);
   expect(clippings[1]!.note).toBeUndefined();
 });
 
@@ -84,7 +84,7 @@ Tags: Calm, Tech
   expect(clip!.text).toBe(
     `[…] back in 1848, John Stuart Mill wondered how much time labour saving devices actually saved, once the maintenance is taken into account: "It is questionable," he wrote, "if all the mechanical inventions yet made have lightened the day's toil of any human being.”`,
   );
-  expect(clip!.page).toBe(146);
+  expect(clip!.page).toBe("146");
 });
 
 test("a blank line inside a quote becomes a paragraph break", () => {
@@ -101,5 +101,5 @@ p. 3
 **Created with [Highlighted](https://highlighted.app)**.`;
   const [clip] = parseHighlightedExport(md).clippings;
   expect(clip!.text).toBe("First paragraph, line one line two.\nSecond paragraph.");
-  expect(clip!.page).toBe(3);
+  expect(clip!.page).toBe("3");
 });

@@ -19,7 +19,7 @@ test("a bare highlight maps to a highlighting note with a quote + location fragm
       title: "The Pragmatic Programmer",
       text: "Care about your craft.",
       location: { start: 792, end: 794 },
-      page: 52,
+      page: "52",
       addedAt: "2020-01-05T14:23:01.000Z",
     }),
     OPTS,
@@ -68,6 +68,20 @@ test("a standalone note (no highlighted text) targets the FragmentSelector direc
     conformsTo: OPTS.conformsTo,
     value: "location=40",
   });
+});
+
+test("a print page span becomes a page range fragment", () => {
+  const note = toMarginNote(clip({ text: "from a physical book", page: ["18", "19"] }), OPTS);
+  expect(note.target.selector?.refinedBy).toEqual({
+    type: "FragmentSelector",
+    conformsTo: OPTS.conformsTo,
+    value: "page=18-19",
+  });
+});
+
+test("percent-escapes a hyphen inside a single page label", () => {
+  const note = toMarginNote(clip({ text: "x", page: "A-1" }), OPTS);
+  expect(note.target.selector?.refinedBy?.value).toBe("page=A%2D1");
 });
 
 test("omits the selector entirely when there is no text and no location", () => {

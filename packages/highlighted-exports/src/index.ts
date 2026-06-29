@@ -33,7 +33,7 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
   const clippings: Clipping[] = [];
   // Quote lines in order; an empty string marks a blank (paragraph break) line.
   let quote: string[] = [];
-  let page: number | undefined;
+  let page: string | [string, string] | undefined;
   let note: string | undefined;
   let inBlock = false;
 
@@ -76,9 +76,13 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
     }
 
     if (inBlock) {
-      const pageLine = content.match(/^p\.?\s*(\d+)/i);
+      // `p. 146`, `p. 18-19`, `p. xi` — a number or roman-numeral page, optionally
+      // a span. The `p.`/`p ` prefix and the restricted alphabet keep prose out.
+      const pageLine = content.match(/^p(?:\.\s*|\s+)([\divxlcdm]+(?:-[\divxlcdm]+)?)\s*$/i);
       if (pageLine) {
-        page = Number(pageLine[1]);
+        const spec = pageLine[1]!;
+        const dash = spec.indexOf("-");
+        page = dash === -1 ? spec : [spec.slice(0, dash), spec.slice(dash + 1)];
         continue;
       }
       const noteLine = content.match(/^Note:\s*(.+)$/i);

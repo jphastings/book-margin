@@ -7,7 +7,7 @@ export interface ParsedEntry {
   kind: ClippingKind;
   title: string;
   author?: string;
-  page?: number;
+  page?: string;
   location?: Location;
   addedAt?: string;
   /** The block body — highlighted passage (highlight) or note text (note). */
@@ -74,7 +74,7 @@ function splitOnAddedOn(metaLine: string): { beforeDate: string; dateText?: stri
  * number before it is the page; with only single numbers, the first is the page
  * and the last is the location.
  */
-function extractLocationAndPage(text: string): { location?: Location; page?: number } {
+function extractLocationAndPage(text: string): { location?: Location; page?: string } {
   const groups: Location[] = [];
   for (const match of text.matchAll(NUMBER_GROUP)) {
     groups.push({ start: Number(match[1]), ...(match[2] ? { end: Number(match[2]) } : {}) });
@@ -83,12 +83,12 @@ function extractLocationAndPage(text: string): { location?: Location; page?: num
 
   const rangeIndex = groups.findIndex((g) => g.end !== undefined);
   if (rangeIndex >= 0) {
-    const result: { location?: Location; page?: number } = { location: groups[rangeIndex] };
-    if (rangeIndex > 0) result.page = groups[rangeIndex - 1]!.start;
+    const result: { location?: Location; page?: string } = { location: groups[rangeIndex] };
+    if (rangeIndex > 0) result.page = String(groups[rangeIndex - 1]!.start);
     return result;
   }
   if (groups.length === 1) return { location: groups[0] };
-  return { page: groups[0]!.start, location: groups[groups.length - 1] };
+  return { page: String(groups[0]!.start), location: groups[groups.length - 1] };
 }
 
 function parseTitleAndAuthor(titleLine: string): { title: string; author?: string } {

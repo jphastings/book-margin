@@ -20,8 +20,11 @@ export interface Clipping {
   kind: ClippingKind;
   title: string;
   author?: string;
-  /** Print page, when the device records one. */
-  page?: number;
+  /**
+   * The print page, when known: a single page label (e.g. `"52"`, or non-numeric
+   * like `"xi"`), or a `[start, end]` span when the source records a page range.
+   */
+  page?: string | [string, string];
   location?: Location;
   /** The highlighted passage (wrapping quotes stripped). Empty for a standalone note. */
   text: string;

@@ -31,7 +31,8 @@
   const where = $derived(locationLabel());
 
   function locationLabel(): string {
-    if (clipping.page !== undefined) return `p.${clipping.page}`;
+    const page = clipping.page;
+    if (page !== undefined) return `p.${Array.isArray(page) ? page.join("–") : page}`;
     if (clipping.location) return `L.${clipping.location.start}`;
     return "";
   }

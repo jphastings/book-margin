@@ -61,14 +61,22 @@ function buildFragmentSelector(clipping: Clipping, conformsTo: string): MarginSe
   return { type: "FragmentSelector", conformsTo, value };
 }
 
-/** Build the Kindle-location fragment value, e.g. `location=792-794&page=52`. */
+/** Build the fragment value, e.g. `location=792-794&page=52` (Kindle) or `page=18-19` (print). */
 function fragmentValue(clipping: Clipping): string | undefined {
-  const params = new URLSearchParams();
+  const parts: string[] = [];
   if (clipping.location) {
     const { start, end } = clipping.location;
-    params.set("location", end !== undefined ? `${start}-${end}` : `${start}`);
+    parts.push(`location=${end !== undefined ? `${start}-${end}` : start}`);
   }
-  if (clipping.page !== undefined) params.set("page", String(clipping.page));
-  const value = params.toString();
-  return value.length > 0 ? value : undefined;
+  if (clipping.page !== undefined) parts.push(`page=${encodePage(clipping.page)}`);
+  return parts.length > 0 ? parts.join("&") : undefined;
+}
+
+/**
+ * Encode a page label or `[start, end]` span. A hyphen inside a single label is
+ * percent-escaped so it can't be read as the span separator (per the physical-books spec).
+ */
+function encodePage(page: string | [string, string]): string {
+  const label = (part: string) => encodeURIComponent(part).replace(/-/g, "%2D");
+  return Array.isArray(page) ? `${label(page[0])}-${label(page[1])}` : label(page);
 }
