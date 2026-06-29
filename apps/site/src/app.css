@@ -167,7 +167,7 @@ input[type="text"]:focus {
   border-bottom: 1px solid var(--border);
 }
 
-.nav>.brand {
+.nav > .brand {
   flex: none;
 }
 

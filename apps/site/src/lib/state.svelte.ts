@@ -29,6 +29,7 @@ import { version as APP_VERSION } from "../../package.json";
 import { DID_KEY } from "./config.ts";
 
 const PLAN_KEY = "book-margin:plan";
+const EXCLUDED_KEY = "book-margin:disabled-tids";
 
 /** Human name of each import source, keyed by the locator namespace it uses. */
 const SOURCE_NAMES: Record<string, string> = {
@@ -83,8 +84,13 @@ class AppState {
   handle = $state<string | undefined>(undefined);
   agent = $state<Authed["agent"] | undefined>(undefined);
   existing = $state<Map<string, MarginNote>>(new Map());
-  /** Records the user has toggled off; excluded from the save. */
-  excluded = $state<Set<PlannedEntry>>(new Set());
+  /**
+   * TIDs (rkeys) the user has toggled off, persisted so a highlight stays
+   * disabled the next time it's encountered — until toggled back on.
+   */
+  excludedTids = $state<Set<string>>(new Set());
+  /** Toggled-off entries whose book hasn't resolved yet (no rkey); in-memory only. */
+  excludedNoRkey = $state<Set<PlannedEntry>>(new Set());
   /** The one record whose status description is pinned open (only one at a time). */
   openTip = $state<PlannedEntry | undefined>(undefined);
   /** The record being inspected (option-click) in the JSON/diff dialog. */
@@ -118,7 +124,7 @@ class AppState {
     for (const book of this.plan) {
       if (!book.isbn13) continue;
       for (const entry of book.entries) {
-        if (this.excluded.has(entry)) continue;
+        if (this.isExcluded(entry)) continue;
         const status = this.statusFor(book, entry);
         if (status === "fresh" || status === "update") n++;
       }
@@ -139,19 +145,43 @@ class AppState {
   }
 
   isExcluded(entry: PlannedEntry): boolean {
-    return this.excluded.has(entry);
+    return entry.rkey !== undefined
+      ? this.excludedTids.has(entry.rkey)
+      : this.excludedNoRkey.has(entry);
   }
 
   toggleExcluded(entry: PlannedEntry): void {
-    const next = new Set(this.excluded);
+    if (entry.rkey !== undefined) {
+      const next = new Set(this.excludedTids);
+      if (next.has(entry.rkey)) next.delete(entry.rkey);
+      else next.add(entry.rkey);
+      this.excludedTids = next;
+      this.persistExcluded();
+      return;
+    }
+    const next = new Set(this.excludedNoRkey);
     if (next.has(entry)) next.delete(entry);
     else next.add(entry);
-    this.excluded = next;
+    this.excludedNoRkey = next;
   }
 
   /** Exclude or re-include every record on the page at once (⌘/Ctrl-click). */
   setAllExcluded(excluded: boolean): void {
-    this.excluded = excluded ? new Set(this.plan.flatMap((book) => book.entries)) : new Set();
+    const tids = new Set(this.excludedTids);
+    const noRkey = new Set<PlannedEntry>();
+    for (const book of this.plan) {
+      for (const entry of book.entries) {
+        if (entry.rkey !== undefined) {
+          if (excluded) tids.add(entry.rkey);
+          else tids.delete(entry.rkey);
+        } else if (excluded) {
+          noRkey.add(entry);
+        }
+      }
+    }
+    this.excludedTids = tids;
+    this.excludedNoRkey = noRkey;
+    this.persistExcluded();
   }
 
   /** Pin a record's description open, closing any other; null/same toggles it shut. */
@@ -160,6 +190,7 @@ class AppState {
   }
 
   async init(): Promise<void> {
+    this.excludedTids = loadExcludedTids();
     const stored = loadPlan();
     if (stored) {
       this.plan = stored.plan;
@@ -308,7 +339,7 @@ class AppState {
       for (const book of this.plan) {
         if (!book.isbn13) continue;
         for (const entry of book.entries) {
-          if (this.excluded.has(entry)) continue;
+          if (this.isExcluded(entry)) continue;
           const status = this.statusFor(book, entry);
           if (status === "fresh" || status === "update") toSave.push(entry);
         }
@@ -329,7 +360,7 @@ class AppState {
 
   /**
    * Start over: drop the imported highlights and return to the upload screen.
-   * Keeps the cached ISBN mappings (localStorage) and the signed-in session.
+   * Keeps the cached ISBN mappings, the disabled TIDs, and the signed-in session.
    */
   reset(): void {
     sessionStorage.removeItem(PLAN_KEY);
@@ -337,7 +368,7 @@ class AppState {
     this.view = "landing";
     this.error = "";
     this.importedAt = "";
-    this.excluded = new Set();
+    this.excludedNoRkey = new Set();
     this.openTip = undefined;
     this.savedCount = 0;
     this.savingTotal = 0;
@@ -360,6 +391,14 @@ class AppState {
     const data: StoredPlan = { importedAt: this.importedAt, plan: this.plan };
     sessionStorage.setItem(PLAN_KEY, JSON.stringify(data));
   }
+
+  private persistExcluded(): void {
+    try {
+      localStorage.setItem(EXCLUDED_KEY, JSON.stringify([...this.excludedTids]));
+    } catch {
+      // Storage unavailable — the disabled state just won't carry over.
+    }
+  }
 }
 
 function loadPlan(): StoredPlan | undefined {
@@ -368,6 +407,15 @@ function loadPlan(): StoredPlan | undefined {
     return raw ? (JSON.parse(raw) as StoredPlan) : undefined;
   } catch {
     return undefined;
+  }
+}
+
+function loadExcludedTids(): Set<string> {
+  try {
+    const raw = localStorage.getItem(EXCLUDED_KEY);
+    return new Set(raw ? (JSON.parse(raw) as string[]) : []);
+  } catch {
+    return new Set();
   }
 }
 
