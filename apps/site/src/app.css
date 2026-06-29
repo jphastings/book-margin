@@ -379,6 +379,20 @@ input[type="text"]:focus {
   background: var(--card);
 }
 
+/* A record not yet on the PDS: no copy affordance, just a muted " (pending)". */
+.inspect-uri.is-pending {
+  cursor: default;
+}
+
+.inspect-uri.is-pending:hover {
+  background: none;
+}
+
+.inspect-uri-pending {
+  margin-left: 0.5rem;
+  color: var(--muted);
+}
+
 .inspect-uri-text {
   flex: 1;
   min-width: 0;

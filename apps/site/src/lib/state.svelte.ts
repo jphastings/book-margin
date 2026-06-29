@@ -76,6 +76,21 @@ function isHighlightedExport(text: string): boolean {
   return /^#\s+Highlights for\s/m.test(text) || text.includes("highlighted.app");
 }
 
+/**
+ * Whether a planned note differs from the stored one in a way worth rewriting.
+ * The `generator` (just this tool's name/version) never counts on its own — a
+ * record that would only re-stamp its generator isn't a real update — and an
+ * undated highlight's `createdAt` is only its import time, so it's ignored too.
+ */
+export function recordNeedsUpdate(
+  planned: MarginNote,
+  stored: MarginNote,
+  dated: boolean,
+): boolean {
+  const ignore = dated ? ["generator"] : ["generator", "createdAt"];
+  return !recordsEqual(planned, stored, ignore);
+}
+
 class AppState {
   view = $state<View>("landing");
   plan = $state<PlannedBook[]>([]);
@@ -138,10 +153,9 @@ class AppState {
     if (!this.agent) return "fresh";
     const stored = this.existing.get(entry.rkey);
     if (!stored) return "fresh";
-    // An undated highlight re-imports with a fresh createdAt (the import time),
-    // so ignore createdAt when comparing — otherwise it would always look changed.
-    const ignore = entry.clipping.addedAt ? undefined : ["createdAt"];
-    return recordsEqual(entry.note, stored, ignore) ? "present" : "update";
+    return recordNeedsUpdate(entry.note!, stored, entry.clipping.addedAt !== undefined)
+      ? "update"
+      : "present";
   }
 
   isExcluded(entry: PlannedEntry): boolean {
