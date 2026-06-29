@@ -223,6 +223,74 @@ input[type="text"]:focus {
 
 .nav-right input[type="text"] {
   min-width: 9.5rem;
+  anchor-name: --handle-anchor;
+}
+
+/* Atmosphere-handle hint, anchored below the login input (top layer so the
+   fixed nav can't clip it; right-aligned + flip so it stays on screen). */
+.handle-hint {
+  position: fixed;
+  position-anchor: --handle-anchor;
+  inset: auto;
+  margin: 0;
+  top: calc(anchor(bottom) + 0.4rem);
+  left: anchor(left);
+  position-try-fallbacks: flip-block;
+  width: max-content;
+  max-width: min(20rem, calc(100vw - 1rem));
+  padding: 0.5rem 0.7rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--fg);
+  font-size: 0.82rem;
+  line-height: 1.45;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+  animation: handle-hint-in 0.18s ease;
+}
+
+@keyframes handle-hint-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* The rolling domain example. min-width reserves the widest so the line doesn't
+   reflow as it changes; each new value rolls up into place. */
+.handle-eg {
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.rotator {
+  display: inline-block;
+  min-width: 8.5em;
+}
+
+.rotator-item {
+  display: inline-block;
+  color: var(--accent-ink);
+  animation: handle-rotate 0.45s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@keyframes handle-rotate {
+  from {
+    opacity: 0;
+    transform: translateY(0.5em);
+    filter: blur(2px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }
 
 .nav-right .reset {

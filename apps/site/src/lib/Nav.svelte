@@ -8,6 +8,70 @@
   let resetDialog: HTMLDialogElement;
   let logoutDialog: HTMLDialogElement;
 
+  // Atmosphere handle hint: shown when the field is empty-while-focused, or
+  // holds something that isn't a handle, for more than a second.
+  const HANDLE_DOMAINS = [
+    ".bsky.social",
+    ".eurosky.social",
+    ".blacksky.app",
+    ".sprk.so",
+    ".selfhosted.social",
+    ".surf.social",
+    ".northsky.social",
+    ".npmx.social",
+  ];
+
+  let handleFocused = $state(false);
+  let hintOpen = $state(false);
+  let domainIndex = $state(0);
+  let hintEl = $state<HTMLElement>();
+
+  const handleDomain = $derived(
+    HANDLE_DOMAINS[domainIndex % HANDLE_DOMAINS.length],
+  );
+
+  /** A bare domain name (no leading `@`), or a did:plc:/did:web: identifier. */
+  function isHandleLike(value: string): boolean {
+    const v = value.trim();
+    if (!v) return false;
+    if (/^did:(plc|web):.+/i.test(v)) return true;
+    return /^([a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}$/i.test(v);
+  }
+
+  const hintWanted = $derived.by(() => {
+    const empty = handle.trim() === "";
+    return (!empty && !isHandleLike(handle)) || (empty && handleFocused);
+  });
+
+  // A second after the field goes wanting, raise the hint (and lower it at once
+  // when it's satisfied). hintWanted is a boolean, so typing more bad input
+  // doesn't restart the timer — only entering/leaving the state does.
+  $effect(() => {
+    if (!hintWanted) {
+      hintOpen = false;
+      return;
+    }
+    const timer = setTimeout(() => (hintOpen = true), 1000);
+    return () => clearTimeout(timer);
+  });
+
+  // While the hint is up, roll the example domain once a second, from the top.
+  $effect(() => {
+    if (!hintOpen) return;
+    domainIndex = 0;
+    const id = setInterval(() => {
+      domainIndex = (domainIndex + 1) % HANDLE_DOMAINS.length;
+    }, 1500);
+    return () => clearInterval(id);
+  });
+
+  // Drive the popover (top layer, so it can't be clipped) from `hintOpen`.
+  $effect(() => {
+    if (!hintEl) return;
+    if (hintOpen && !hintEl.matches(":popover-open")) hintEl.showPopover();
+    else if (!hintOpen && hintEl.matches(":popover-open")) hintEl.hidePopover();
+  });
+
   /** Scroll to the next book still missing an ISBN, cycling back to the first. */
   function scrollToNextMissing() {
     const books = Array.from(
@@ -83,14 +147,25 @@
         <input
           type="text"
           bind:value={handle}
-          placeholder="you.bsky.social"
+          onfocus={() => (handleFocused = true)}
+          onblur={() => (handleFocused = false)}
+          placeholder="eg. you.bsky.social"
           autocomplete="username"
           spellcheck="false"
         />
-        <button class="primary" type="submit" disabled={!handle.trim()}
+        <button class="primary" type="submit" disabled={!isHandleLike(handle)}
           >Log in</button
         >
       </form>
+      <div class="handle-hint" popover="manual" bind:this={hintEl}>
+        Use your atmosphere handle<br />
+        <i>eg.</i>&nbsp;<span class="handle-eg"
+          >you<span class="rotator"
+            >{#key handleDomain}<span class="rotator-item">{handleDomain}</span
+              >{/key}</span
+          ></span
+        >
+      </div>
     {/if}
 
     <button
