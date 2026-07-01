@@ -93,3 +93,30 @@ test("falls back to importedAt when the clipping is undated", () => {
   const note = toMarginNote(clip({ text: "x" }), OPTS);
   expect(note.createdAt).toBe(OPTS.importedAt);
 });
+
+test("carries tags onto the note", () => {
+  const note = toMarginNote(clip({ text: "x", tags: ["Calm", "Tech"] }), OPTS);
+  expect(note.tags).toEqual(["Calm", "Tech"]);
+});
+
+test("keeps tags lexicon-valid: trims, de-dupes, drops over-long, caps at 10", () => {
+  const note = toMarginNote(
+    clip({
+      text: "x",
+      tags: [
+        " Calm ",
+        "Calm",
+        "",
+        "x".repeat(65),
+        ...Array.from({ length: 12 }, (_, i) => `t${i}`),
+      ],
+    }),
+    OPTS,
+  );
+  expect(note.tags).toEqual(["Calm", "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8"]);
+});
+
+test("omits tags entirely when there are none", () => {
+  const note = toMarginNote(clip({ text: "x" }), OPTS);
+  expect(note.tags).toBeUndefined();
+});

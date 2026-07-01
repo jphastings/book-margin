@@ -29,7 +29,7 @@ test("reads the book's title, author and ISBN from the header", () => {
   expect(result.isbn).toBe("9780285634633");
 });
 
-test("turns each blockquote into a highlight with its page and note", () => {
+test("turns each blockquote into a highlight with its page, note and tags", () => {
   const { clippings } = parseHighlightedExport(EXPORT);
   expect(clippings).toHaveLength(2);
 
@@ -40,11 +40,14 @@ test("turns each blockquote into a highlight with its page and note", () => {
     page: "12",
     text: "People who believe in the immortality of the soul do not need to accumulate power, build empires or prepare lasting defences.",
     note: "This feels a little trite, but it's interesting that it even fits.",
+    tags: ["Human nature"],
   });
 
   // A page range becomes a [start, end] span; a note-less highlight has no note.
   expect(clippings[1]!.page).toEqual(["18", "19"]);
   expect(clippings[1]!.note).toBeUndefined();
+  // A comma-separated Tags line becomes a list.
+  expect(clippings[1]!.tags).toEqual(["History", "Mindfulness"]);
 });
 
 test("gives each highlight a stable id that is independent of import", () => {
@@ -54,7 +57,7 @@ test("gives each highlight a stable id that is independent of import", () => {
   expect(a[0]!.id).not.toBe(a[1]!.id);
 });
 
-test("drops the copyright footer and ignores tags", () => {
+test("keeps the footer and tag lines out of the quote text", () => {
   const { clippings } = parseHighlightedExport(EXPORT);
   for (const clip of clippings) {
     expect(clip.text).not.toContain("Created with");

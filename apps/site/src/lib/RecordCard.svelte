@@ -28,6 +28,7 @@
   }
 
   const text = $derived(entry.note?.target.selector?.exact ?? clipping.text);
+  const tags = $derived(entry.note?.tags ?? clipping.tags);
   const where = $derived(locationLabel());
 
   function locationLabel(): string {
@@ -68,7 +69,10 @@
   <div class="record-body">
     {#if text}
       <blockquote class="quote">
-        {#if where}<span class="loc">{where}</span>{" "}{/if}{text}
+        {#if where}<span class="loc">{where}</span>{" "}{/if}{text}{#if tags?.length}<span
+            class="quote-tags"
+            >{#each tags as tag}<span class="quote-tag">#{tag}</span>{/each}</span
+          >{/if}
       </blockquote>
     {/if}
     {#if clipping.note}

@@ -897,11 +897,35 @@ button.book-isbn:hover {
   font-size: 1.05rem;
   line-height: 1.55;
   color: var(--fg);
+  /* Contain the floated tags (below) so the note/card can't overlap them. */
+  display: flow-root;
 }
 
 /* The page/location, muted, leading the highlighted text. */
 .loc {
   color: var(--muted);
+}
+
+/* Tags that will be stored on the record. Floated at the end of the quote so
+   they fill the space beside a short last line and only drop to their own line
+   when the text runs full — muted but clearly legible. */
+.quote-tags {
+  float: right;
+  /* Reserve one line of quote height and drop the tags to its bottom, so they
+     sit on the last line's baseline rather than at the top of the line box. */
+  min-height: calc(1.05rem * 1.55);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: flex-end;
+  gap: 0.1rem 0.5rem;
+  margin-left: 0.75rem;
+  font-size: 0.75rem;
+  color: color-mix(in srgb, var(--fg) 40%, transparent);
+}
+
+.quote-tag {
+  white-space: nowrap;
 }
 
 /* The reader's note — equal weight, but a distinct "ink" voice. */

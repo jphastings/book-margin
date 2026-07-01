@@ -37,10 +37,36 @@ export function toMarginNote(clipping: Clipping, options: MapOptions): MarginNot
   if (clipping.note) note.body = { value: clipping.note, format: "text/plain" };
   if (options.generator) note.generator = options.generator;
 
+  const tags = sanitizeTags(clipping.tags);
+  if (tags.length > 0) note.tags = tags;
+
   const selector = buildSelector(clipping.text, fragment);
   if (selector) note.target.selector = selector;
 
   return note;
+}
+
+const GRAPHEMES = new Intl.Segmenter();
+const UTF8 = new TextEncoder();
+
+/**
+ * Lexicon-safe tags: trimmed, de-duplicated, each within the 32-grapheme /
+ * 64-byte item limit, and capped at 10 (`at.margin.note` `tags` constraints).
+ */
+function sanitizeTags(tags: string[] | undefined): string[] {
+  if (!tags?.length) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const raw of tags) {
+    const tag = raw.trim();
+    if (!tag || seen.has(tag)) continue;
+    const graphemes = [...GRAPHEMES.segment(tag)].length;
+    if (graphemes > 32 || UTF8.encode(tag).length > 64) continue;
+    seen.add(tag);
+    out.push(tag);
+    if (out.length === 10) break;
+  }
+  return out;
 }
 
 function buildSelector(

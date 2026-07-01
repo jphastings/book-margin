@@ -35,6 +35,7 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
   let quote: string[] = [];
   let page: string | [string, string] | undefined;
   let note: string | undefined;
+  let tags: string[] = [];
   let inBlock = false;
 
   const flush = () => {
@@ -48,11 +49,13 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
         ...(page !== undefined ? { page } : {}),
         text,
         ...(note ? { note } : {}),
+        ...(tags.length > 0 ? { tags } : {}),
       });
     }
     quote = [];
     page = undefined;
     note = undefined;
+    tags = [];
     inBlock = false;
   };
 
@@ -90,7 +93,14 @@ export function parseHighlightedExport(markdown: string): HighlightedExport {
         note = noteLine[1]!.trim();
         continue;
       }
-      if (/^Tags:/i.test(content)) continue;
+      const tagsLine = content.match(/^Tags:\s*(.*)$/i);
+      if (tagsLine) {
+        tags = tagsLine[1]!
+          .split(",")
+          .map((tag) => tag.trim())
+          .filter(Boolean);
+        continue;
+      }
       // A continuation line, or a blank line (which marks a paragraph break).
       quote.push(content);
       continue;

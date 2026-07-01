@@ -30,6 +30,8 @@ export interface Clipping {
   text: string;
   /** A reader's note: the comment on a highlight, or a standalone note's body. */
   note?: string;
+  /** Freeform tags on the annotation (e.g. from a Highlighted export). */
+  tags?: string[];
   /** ISO 8601 timestamp of when the annotation was made, when parseable. */
   addedAt?: string;
 }
