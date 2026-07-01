@@ -1,6 +1,6 @@
 {
   "name": "@byjp/book-margin-web",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Shared browser-side atproto OAuth, repo client, and ISBN stores for the site and extension.",
   "license": "MIT",
   "type": "module",

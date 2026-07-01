@@ -1,6 +1,6 @@
 {
   "name": "@byjp/book-margin-cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Command-line sync of a Kindle My Clippings.txt export into Margin (at.margin.note) records.",
   "license": "MIT",
   "bin": {

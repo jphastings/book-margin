@@ -1,6 +1,6 @@
 {
   "name": "@byjp/highlighted-exports",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Parser for Highlighted.app Markdown exports: one book of highlights, with its ISBN, into normalised annotations.",
   "license": "MIT",
   "files": [

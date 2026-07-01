@@ -1,6 +1,6 @@
 {
   "name": "@byjp/kindle-clippings",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Locale-aware parser for Kindle My Clippings.txt: pairs notes with their highlights and derives a stable per-annotation id.",
   "license": "MIT",
   "files": [
